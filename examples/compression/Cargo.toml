@@ -1,0 +1,10 @@
+[package]
+name = "compression"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+algods = { path = "../.."}
+clap = { version = "4.0.9", features = ["derive"] }
+bitvec = "1.0.1"

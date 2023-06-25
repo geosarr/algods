@@ -1,0 +1,9 @@
+[package]
+name = "page_rank"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+algods = { path = "../../../.."}
+rayon = "1.7"

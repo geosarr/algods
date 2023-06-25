@@ -1,0 +1,9 @@
+[package]
+name = "threesum"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+clap = { version = "4.0.9", features = ["derive"] }
+algods = { path = "../.."}
