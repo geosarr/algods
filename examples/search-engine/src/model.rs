@@ -28,7 +28,7 @@ impl Boolean {
         let processed_query: HashSet<_> = processed_query.split_whitespace().collect();
         let collection_tokens: HashSet<_> = index.index().keys().map(|t| t.as_str()).collect(); // TODO: Add it to data preparation
         let overlap: HashSet<_> = processed_query.intersection(&collection_tokens).collect();
-        let postings: Vec<_> = overlap.iter().map(|tok| index.get_posting(tok)).collect();
+        let postings: Vec<_> = overlap.iter().map(|tok| index.posting(tok)).collect();
         if !postings.is_empty() {
             let matching_doc_id = match self.query_type {
                 BQueryType::And => Self::intersect_many(postings),
@@ -36,7 +36,7 @@ impl Boolean {
             };
             matching_doc_id
                 .iter()
-                .map(|id| collection.get_document(id))
+                .map(|id| collection.document(id))
                 .collect()
         } else {
             vec![]

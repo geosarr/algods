@@ -37,7 +37,7 @@ impl InvertedIndex {
         &self.raw_freq
     }
 
-    pub fn get_posting(&self, tok: &str) -> &Vec<usize> {
+    pub fn posting(&self, tok: &str) -> &Vec<usize> {
         &self.index[tok]
     }
 
@@ -47,7 +47,7 @@ impl InvertedIndex {
             collection.insert(doc_id, document);
         }
 
-        let terms = preprocess(collection.get_document(&doc_id));
+        let terms = preprocess(collection.document(&doc_id));
         // Character indexing the document
         if self.include_char_index {
             for term in terms.keys() {

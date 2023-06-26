@@ -18,7 +18,7 @@ impl Collection {
     pub fn insert(&mut self, id: usize, doc: Document) {
         self.data.insert(id, doc);
     }
-    pub fn get_document(&self, id: &usize) -> &Document {
+    pub fn document(&self, id: &usize) -> &Document {
         &self.data[id]
     }
     pub fn contains(&self, id: &usize) -> bool {

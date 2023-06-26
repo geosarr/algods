@@ -1,7 +1,5 @@
 use algods::compression::RunLength;
 use bitvec::prelude::Lsb0;
-use std::io;
-
 use clap::Parser;
 
 #[derive(Parser)]

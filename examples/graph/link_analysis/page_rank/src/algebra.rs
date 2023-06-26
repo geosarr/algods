@@ -21,7 +21,7 @@ impl<T> Array<T> {
     pub fn coordinate(&self, i: usize) -> &T {
         &self.vec[i]
     }
-    pub fn get_mut_coordinate(&mut self, i: usize) -> &mut T {
+    pub fn mut_coordinate(&mut self, i: usize) -> &mut T {
         &mut self.vec[i]
     }
 }
@@ -205,8 +205,8 @@ impl<T> Matrix<T> {
         let vec: Vec<&T> = self.vec.iter().map(|arr| arr.coordinate(j)).collect();
         Array::from_vec(vec)
     }
-    pub fn get_mut_coef(&mut self, i: usize, j: usize) -> &mut T {
-        self.vec[i].get_mut_coordinate(j)
+    pub fn mut_coef(&mut self, i: usize, j: usize) -> &mut T {
+        self.vec[i].mut_coordinate(j)
     }
 }
 
@@ -225,7 +225,7 @@ impl<'a, T: 'a + Mul<Output = T> + Copy + Zero + std::iter::Sum> Matrix<T> {
             // mat.row(0).dot_ref(mat.col(1));
             for i in 0..nb_row_lhs {
                 for j in 0..nb_col_rhs {
-                    *mat.get_mut_coef(i, j) = self.row(i).dot_ref(other.col(j));
+                    *mat.mut_coef(i, j) = self.row(i).dot_ref(other.col(j));
                 }
             }
             mat

@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod unit_test;
-use crate::graph::{FlowEdge, FlowNetwork, Weight};
+use crate::graph::{FlowNetwork, Weight};
 use std::cmp::min;
 use std::collections::VecDeque;
 

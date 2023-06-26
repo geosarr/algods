@@ -156,7 +156,7 @@ impl<T: Ord, U: Ord> BTreeTable<T, U> {
             None
         }
     }
-    /// Returns the list of keys in the tree that are between two keys.
+    /// Returns the list of keys in the tree that are between two keys (low included, high excluded).
     /// # Example
     /// ```
     /// use algods::data_structure::BTreeTable;
@@ -174,7 +174,7 @@ impl<T: Ord, U: Ord> BTreeTable<T, U> {
             .map(|item| item.0)
             .collect::<Vec<&T>>()
     }
-    /// Returns the list of keys in the tree that are between two keys.
+    /// Returns the number of keys in the tree that are between two keys (low included, high excluded).
     /// # Example
     /// ```
     /// use algods::data_structure::BTreeTable;
@@ -507,7 +507,7 @@ impl<T, U> OrdVecTable<T, U> {
         if self.is_empty() {
             None
         } else {
-            Some(self.vec[0].get_first())
+            Some(self.vec[0].first())
         }
     }
     /// Returns the largest key in the tree.
@@ -523,7 +523,7 @@ impl<T, U> OrdVecTable<T, U> {
         if self.vec.is_empty() {
             None
         } else {
-            Some(self.vec[self.vec.len() - 1].get_first())
+            Some(self.vec[self.vec.len() - 1].first())
         }
     }
 }
@@ -551,7 +551,7 @@ impl<T: Ord + Clone, U: Eq> OrdVecTable<T, U> {
     pub fn get(&self, key: &T) -> Option<&U> {
         // run time complexity O(log(N))
         if let Ok(index) = self.vec.binary_search(&Pair::init(key.clone(), None)) {
-            return self.vec[index].get_second().as_ref();
+            return self.vec[index].second().as_ref();
         } else {
             None
         }
@@ -573,10 +573,10 @@ impl<T: Ord + Clone, U: Eq> OrdVecTable<T, U> {
         } else {
             let index = self.vec.binary_search(&Pair::init(key.clone(), None));
             match index {
-                Ok(ind) => Some(self.vec[ind].get_first()),
+                Ok(ind) => Some(self.vec[ind].first()),
                 Err(ind) => {
                     if ind > 0 {
-                        Some(self.vec[ind - 1].get_first())
+                        Some(self.vec[ind - 1].first())
                     } else {
                         // all keys in the table are > keys
                         None
@@ -603,13 +603,13 @@ impl<T: Ord + Clone, U: Eq> OrdVecTable<T, U> {
         } else {
             let index = self.vec.binary_search(&Pair::init(key.clone(), None));
             match index {
-                Ok(ind) => Some(self.vec[ind].get_first()),
+                Ok(ind) => Some(self.vec[ind].first()),
                 Err(ind) => {
                     if ind < self.vec.len() - 1 && ind > 0 {
-                        Some(self.vec[ind + 1].get_first())
+                        Some(self.vec[ind + 1].first())
                     } else if ind == 0 {
                         // key is < to all keys
-                        Some(self.vec[0].get_first())
+                        Some(self.vec[0].first())
                     } else {
                         // all keys in the table are < key
                         None
@@ -627,8 +627,8 @@ impl<T: Ord + Clone, U: Eq + Clone> OrdVecTable<T, U> {
         match index {
             Ok(ind) => {
                 // key is found
-                let temp_val = self.vec[ind].get_second().as_ref().cloned();
-                let mut_val = self.vec[ind].set_second();
+                let temp_val = self.vec[ind].second().as_ref().cloned();
+                let mut_val = self.vec[ind].second_mut();
                 *mut_val = value;
                 temp_val
             }
@@ -685,17 +685,17 @@ impl<T, U> Pair<T, U> {
             tuple: (key, value),
         }
     }
-    pub fn get_first(&self) -> &T {
+    pub fn first(&self) -> &T {
         &self.tuple.0
     }
 
-    pub fn get_second(&self) -> &U {
+    pub fn second(&self) -> &U {
         &self.tuple.1
     }
-    pub fn set_first(&mut self) -> &mut U {
-        &mut self.tuple.1
+    pub fn first_mut(&mut self) -> &mut T {
+        &mut self.tuple.0
     }
-    pub fn set_second(&mut self) -> &mut U {
+    pub fn second_mut(&mut self) -> &mut U {
         &mut self.tuple.1
     }
 }

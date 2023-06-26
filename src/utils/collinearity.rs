@@ -113,13 +113,13 @@ impl<T: ToString + Ord + Clone> FastCollinearPoints<T> {
                 let mut i = 0;
                 while i < n - 1 {
                     let mut temp_vec = Vec::<&Point<T>>::new();
-                    temp_vec.push(lines_with_point_k[i].get_p()); // point k
-                    temp_vec.push(lines_with_point_k[i].get_q());
+                    temp_vec.push(lines_with_point_k[i].p()); // point k
+                    temp_vec.push(lines_with_point_k[i].q());
                     let mut l = i + 1;
                     while l < n - 1
                         && lines_with_point_k[i].slope() == lines_with_point_k[l].slope()
                     {
-                        temp_vec.push(lines_with_point_k[l].get_q());
+                        temp_vec.push(lines_with_point_k[l].q());
                         l += 1;
                     }
                     // println!("temp_vec = {:?}, l={}", temp_vec, l);

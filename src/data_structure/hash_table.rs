@@ -135,16 +135,16 @@ impl<T: Hash + Clone + Eq, U: Clone + Eq> SepChainTable<T, U> {
         // can be converted to usize (see self.hash() function)
         let index = self.hash(&key);
         let stack_len = self.vec[index].len();
-        let mut stack = self.vec[index].get_mut_first();
+        let mut stack = self.vec[index].first_mut();
         let mut c = 0;
         while c < stack_len {
             let temp_stack = stack.as_mut().unwrap();
-            if key == temp_stack.get_item().0 {
+            if key == temp_stack.item().0 {
                 // replace its value
-                temp_stack.get_mut_item().1 = value.clone();
+                temp_stack.item_mut().1 = value.clone();
                 break;
             }
-            stack = temp_stack.get_mut_next();
+            stack = temp_stack.next_mut();
             c += 1;
         }
         if c >= stack_len {
@@ -185,13 +185,13 @@ impl<T: Eq + Hash, U: Eq> SepChainTable<T, U> {
         // have the same number of keys due to the coupon collector
         // and load balancing properties
         let index = self.hash(key);
-        let mut stack = self.vec[index].get_first();
+        let mut stack = self.vec[index].first();
         while stack.is_some() {
             let temp_stack = stack.as_ref().unwrap();
-            if key == &temp_stack.get_item().0 {
-                return Some(&temp_stack.get_item().1);
+            if key == &temp_stack.item().0 {
+                return Some(&temp_stack.item().1);
             }
-            stack = temp_stack.get_next();
+            stack = temp_stack.next();
         }
         None
     }

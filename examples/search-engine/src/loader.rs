@@ -66,14 +66,14 @@ impl Loader {
             }
         }
         buf.clear();
-        // println!("{:#?}", collection.get_document(&5));
+        // println!("{:#?}", collection.document(&5));
         // println!("Total abstracts {}", collection.len());
         // println!("{:#?}", index.index());
         // println!("{:#?}", index.raw_freq());
-        // println!("{:#?}", collection.get_document(&9));
-        // println!("{:#?}", collection.get_document(&8));
-        // println!("{:#?}", collection.get_document(&5));
-        // println!("{:#?}", collection.get_document(&4));
+        // println!("{:#?}", collection.document(&9));
+        // println!("{:#?}", collection.document(&8));
+        // println!("{:#?}", collection.document(&5));
+        // println!("{:#?}", collection.document(&4));
         return (index, collection);
     }
 }

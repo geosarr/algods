@@ -13,16 +13,16 @@ pub struct Node<T> {
     next: Option<Box<Node<T>>>,
 }
 impl<T> Node<T> {
-    pub fn get_item(&self) -> &T {
+    pub fn item(&self) -> &T {
         &self.item
     }
-    pub fn get_mut_item(&mut self) -> &mut T {
+    pub fn item_mut(&mut self) -> &mut T {
         &mut self.item
     }
-    pub fn get_next(&self) -> &Option<Box<Node<T>>> {
+    pub fn next(&self) -> &Option<Box<Node<T>>> {
         &self.next
     }
-    pub fn get_mut_next(&mut self) -> &mut Option<Box<Node<T>>> {
+    pub fn next_mut(&mut self) -> &mut Option<Box<Node<T>>> {
         &mut self.next
     }
 }
@@ -87,9 +87,9 @@ impl<T> Stack<T> {
     /// ```
     /// use algods::data_structure::Stack;
     /// let stack = Stack::init("0");
-    /// assert_eq!(stack.get_first().as_ref().unwrap().get_item().clone(), "0");
+    /// assert_eq!(stack.first().as_ref().unwrap().item().clone(), "0");
     /// ```
-    pub fn get_first(&self) -> &Option<Box<Node<T>>> {
+    pub fn first(&self) -> &Option<Box<Node<T>>> {
         &self.first
     }
 
@@ -98,13 +98,13 @@ impl<T> Stack<T> {
     /// ```
     /// use algods::data_structure::Stack;
     /// let mut stack = Stack::init("0");
-    /// let mut mut_ref_first = stack.get_mut_first();
+    /// let mut mut_ref_first = stack.first_mut();
     /// if let Some(ref mut node) = mut_ref_first{
-    ///     *(node.get_mut_item()) = "1";     
+    ///     *(node.item_mut()) = "1";     
     ///  }
-    /// assert_eq!(stack.get_first().as_ref().unwrap().get_item().clone(), "1");
+    /// assert_eq!(stack.first().as_ref().unwrap().item().clone(), "1");
     /// ```
-    pub fn get_mut_first(&mut self) -> &mut Option<Box<Node<T>>> {
+    pub fn first_mut(&mut self) -> &mut Option<Box<Node<T>>> {
         &mut self.first
     }
 

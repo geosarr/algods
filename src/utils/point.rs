@@ -29,14 +29,14 @@ impl<T> Point<T> {
     }
 }
 impl<T: Clone + ToString> Point<T> {
-    pub fn get_x(&self) -> f32 {
+    pub fn x(&self) -> f32 {
         self.x
             .clone()
             .to_string()
             .parse::<f32>()
             .expect("Failed to convert abscissa to f32")
     }
-    pub fn get_y(&self) -> f32 {
+    pub fn y(&self) -> f32 {
         self.y
             .clone()
             .to_string()
@@ -177,10 +177,10 @@ impl<T> LineSegment<T> {
             q: point2,
         }
     }
-    pub fn get_p(&self) -> &Point<T> {
+    pub fn p(&self) -> &Point<T> {
         &self.p
     }
-    pub fn get_q(&self) -> &Point<T> {
+    pub fn q(&self) -> &Point<T> {
         &self.q
     }
 }
@@ -243,10 +243,10 @@ impl<T> Segment<T> {
             q: point2,
         }
     }
-    pub fn get_p(&self) -> &Point<T> {
+    pub fn p(&self) -> &Point<T> {
         &self.p
     }
-    pub fn get_q(&self) -> &Point<T> {
+    pub fn q(&self) -> &Point<T> {
         &self.q
     }
 }
@@ -256,54 +256,54 @@ impl<T: Clone + ToString> Segment<T> {
         if self.slope() != other.slope() {
             // the lines supporting both segments self and other interect
             // with intersection point given by the following:
-            let other_point = other.get_p();
-            let self_point = self.get_p();
-            let intersect_abscissa = ((other_point.get_y() - other.slope() * other_point.get_x())
-                - (self_point.get_y() - other.slope() * self_point.get_x()))
+            let other_point = other.p();
+            let self_point = self.p();
+            let intersect_abscissa = ((other_point.y() - other.slope() * other_point.x())
+                - (self_point.y() - other.slope() * self_point.x()))
                 / (self.slope() - other.slope());
             let intersect_ordinate =
-                self.slope() * (intersect_abscissa - self_point.get_x()) + self_point.get_y();
+                self.slope() * (intersect_abscissa - self_point.x()) + self_point.y();
             // let intersection_point = Point::init(intersect_abscissa, intersect_ordinate);
             // check if the intersection point belongs to both segments self and other (horrible!!)
-            let self_max_x = if self.get_p().get_x() < self.get_q().get_x() {
-                self.get_q().get_x()
+            let self_max_x = if self.p().x() < self.q().x() {
+                self.q().x()
             } else {
-                self.get_p().get_x()
+                self.p().x()
             };
-            let self_min_x = if self.get_p().get_x() > self.get_q().get_x() {
-                self.get_q().get_x()
+            let self_min_x = if self.p().x() > self.q().x() {
+                self.q().x()
             } else {
-                self.get_p().get_x()
+                self.p().x()
             };
-            let self_max_y = if self.get_p().get_y() < self.get_q().get_y() {
-                self.get_q().get_y()
+            let self_max_y = if self.p().y() < self.q().y() {
+                self.q().y()
             } else {
-                self.get_p().get_y()
+                self.p().y()
             };
-            let self_min_y = if self.get_p().get_y() > self.get_q().get_y() {
-                self.get_q().get_y()
+            let self_min_y = if self.p().y() > self.q().y() {
+                self.q().y()
             } else {
-                self.get_p().get_y()
+                self.p().y()
             };
-            let other_max_x = if other.get_p().get_x() < other.get_q().get_x() {
-                other.get_q().get_x()
+            let other_max_x = if other.p().x() < other.q().x() {
+                other.q().x()
             } else {
-                other.get_p().get_x()
+                other.p().x()
             };
-            let other_min_x = if other.get_p().get_x() > other.get_q().get_x() {
-                other.get_q().get_x()
+            let other_min_x = if other.p().x() > other.q().x() {
+                other.q().x()
             } else {
-                other.get_p().get_x()
+                other.p().x()
             };
-            let other_max_y = if other.get_p().get_y() < other.get_q().get_y() {
-                other.get_q().get_y()
+            let other_max_y = if other.p().y() < other.q().y() {
+                other.q().y()
             } else {
-                other.get_p().get_y()
+                other.p().y()
             };
-            let other_min_y = if other.get_p().get_y() > other.get_q().get_y() {
-                other.get_q().get_y()
+            let other_min_y = if other.p().y() > other.q().y() {
+                other.q().y()
             } else {
-                other.get_p().get_y()
+                other.p().y()
             };
 
             return (self_min_x <= intersect_abscissa && intersect_abscissa <= self_max_x)
@@ -339,17 +339,17 @@ impl<T: Ord + ToString + Clone> Ord for Segment<T> {
         let slope1 = self.slope();
         let slope2 = other.slope();
         if slope1 < slope2 || (slope1 == slope2 && slope1 != f32::INFINITY && slope1 != f32::NEG_INFINITY
-        && -slope1 * self.get_p().get_x() + self.get_p().get_y() < -slope1 * other.get_p().get_x() + other.get_p().get_y()
-        && -slope1 * self.get_q().get_x() + self.get_q().get_y() < -slope1 * other.get_q().get_x() + other.get_q().get_y()) || // (for security purpose only)
-        (slope1 == slope2 && slope1 == f32::INFINITY && self.get_p().get_x() < other.get_p().get_x() && self.get_q().get_x() < other.get_q().get_x()) ||
-        (slope1 == slope2 && slope1 == f32::NEG_INFINITY && self.get_p() < other.get_p() && self.get_q() < other.get_q())
+        && -slope1 * self.p().x() + self.p().y() < -slope1 * other.p().x() + other.p().y()
+        && -slope1 * self.q().x() + self.q().y() < -slope1 * other.q().x() + other.q().y()) || // (for security purpose only)
+        (slope1 == slope2 && slope1 == f32::INFINITY && self.p().x() < other.p().x() && self.q().x() < other.q().x()) ||
+        (slope1 == slope2 && slope1 == f32::NEG_INFINITY && self.p() < other.p() && self.q() < other.q())
         {
             Ordering::Less
         } else if slope1 > slope2 || (slope1 == slope2 && slope1 != f32::INFINITY
-        && -slope1 * self.get_p().get_x() + self.get_p().get_y() > -slope1 * other.get_p().get_x() + other.get_p().get_y()
-        && -slope1 * self.get_q().get_x() + self.get_q().get_y() > -slope1 * other.get_q().get_x() + other.get_q().get_y()) || // (for security purpose only)
-        (slope1 == slope2 && slope1 == f32::INFINITY && self.get_p().get_x() > other.get_p().get_x() && self.get_q().get_x() > other.get_q().get_x()) ||
-        (slope1 == slope2 && slope1 == f32::NEG_INFINITY && self.get_p() > other.get_p() && self.get_q() > other.get_q())
+        && -slope1 * self.p().x() + self.p().y() > -slope1 * other.p().x() + other.p().y()
+        && -slope1 * self.q().x() + self.q().y() > -slope1 * other.q().x() + other.q().y()) || // (for security purpose only)
+        (slope1 == slope2 && slope1 == f32::INFINITY && self.p().x() > other.p().x() && self.q().x() > other.q().x()) ||
+        (slope1 == slope2 && slope1 == f32::NEG_INFINITY && self.p() > other.p() && self.q() > other.q())
         {
             Ordering::Greater
         } else {
@@ -371,11 +371,11 @@ impl<T: Ord + ToString + Clone> PartialEq for Segment<T> {
         let slope2 = other.slope();
         (slope1 == slope2) &&
         (slope1 != f32::INFINITY && slope1 != f32::NEG_INFINITY
-        && slope1*(other.get_p().get_x() - self.get_p().get_x()) == other.get_p().get_y() - self.get_p().get_y()
-        && slope1*(other.get_q().get_x() - self.get_p().get_x()) == other.get_q().get_y() - self.get_p().get_y()) ||
+        && slope1*(other.p().x() - self.p().x()) == other.p().y() - self.p().y()
+        && slope1*(other.q().x() - self.p().x()) == other.q().y() - self.p().y()) ||
         // self and other are vertical
-        (slope1 == f32::INFINITY && self.get_p().get_x() == other.get_p().get_x() && self.get_q().get_x() == other.get_q().get_x()) ||
+        (slope1 == f32::INFINITY && self.p().x() == other.p().x() && self.q().x() == other.q().x()) ||
         // self and other are points
-        (slope1 == f32::NEG_INFINITY && self.get_p() == other.get_p() && self.get_q() == other.get_q())
+        (slope1 == f32::NEG_INFINITY && self.p() == other.p() && self.q() == other.q())
     }
 }

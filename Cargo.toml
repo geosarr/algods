@@ -2,6 +2,14 @@
 name = "algods"
 version = "0.1.0"
 edition = "2021"
+authors = ["Georges <georgesmbissanes@gmail.com>"]
+license = "MIT"
+description = "A collection of data structures and algorithms"
+readme = false
+repository = "https://github.com/geosarr/algods.git"
+build = false
+keywords = ["algorithm", "data-structure", "graph"]
+categories = ["algorithms", "data-structure"]
 
 [dependencies]
 bitvec = "1"
