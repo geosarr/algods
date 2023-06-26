@@ -2,7 +2,7 @@ mod first_search;
 mod shortest_path;
 #[cfg(test)]
 mod unit_test;
-use crate::graph::{EdgeWeightedDigraph, FlowEdge, FlowNetwork, VertexInfo, Weight};
+use crate::graph::{EdgeWeightedDigraph, VertexInfo, Weight};
 pub use first_search::{bfs, dfs};
 pub use shortest_path::{bellman_ford, dijkstra, shortest_path_ewdag};
 use std::marker::PhantomData;

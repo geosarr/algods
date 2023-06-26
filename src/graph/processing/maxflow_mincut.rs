@@ -74,7 +74,6 @@ impl<T: Weight> FordFulkerson<T> {
             // Update the flow of each edge along the path
             vertex = destination;
             while let Some(parent_vertex) = edge_to[vertex] {
-                let edges = network.vertex_edges_mut(&parent_vertex);
                 let forward_edge = network
                     .vertex_edges_mut(&parent_vertex)
                     .find(|e| e.to() == &vertex)
