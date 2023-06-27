@@ -9,7 +9,7 @@ readme = false
 repository = "https://github.com/geosarr/algods.git"
 build = false
 keywords = ["algorithm", "data-structure", "graph"]
-categories = ["algorithms", "data-structure"]
+categories = ["algorithms", "data-structures"]
 
 [dependencies]
 bitvec = "1"

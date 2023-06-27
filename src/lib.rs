@@ -3,8 +3,8 @@
 //! `algods` is a collection of some classic algorithms and data structures
 //! that can be used as basis of more complex programs.
 
-/// This module regroups implementations of classical graph structures
-/// and some classical graph processing algorithms
+/// This module regroups implementations of classic graph structures
+/// and some classic graph processing algorithms
 pub mod graph;
 
 /// This module contains data compression algorithms
