@@ -2,7 +2,7 @@ mod first_search;
 mod shortest_path;
 #[cfg(test)]
 mod unit_test;
-use crate::graph::{EdgeWeightedDigraph, VertexInfo, Weight};
+use crate::graph::{EdgeWeightDiGraph, VertexInfo, Weight};
 pub use first_search::{bfs, dfs};
 pub use shortest_path::{bellman_ford, dijkstra, shortest_path_ewdag};
 use std::marker::PhantomData;
@@ -163,7 +163,7 @@ impl<T: Eq + Weight> ShortestPath<T> {
 }
 
 impl<T: Ord + Weight + std::ops::Add<Output = T> + std::hash::Hash> ShortestPath<T> {
-    pub fn find_paths(&mut self, graph: &EdgeWeightedDigraph<T>) {
+    pub fn find_paths(&mut self, graph: &EdgeWeightDiGraph<T>) {
         match self.algo {
             ShortestPathAlgo::Dijkstra => {
                 dijkstra(graph, self.source, &mut self.edge_to, &mut self.dist_to);

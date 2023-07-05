@@ -7,17 +7,17 @@
 /// and some classic graph processing algorithms
 pub mod graph;
 
-/// This module contains data compression algorithms
-pub mod compression;
+// This module contains data compression algorithms
+// pub mod compression;
 
-/// Encompasses some basic structures
-pub mod data_structure;
+// Encompasses some basic structures
+// pub mod data_structure;
 
-/// Regroups some classic search algorithms
-pub mod search;
+// Regroups some classic search algorithms
+// pub mod search;
 
-/// Regroups some classic sort algorithms
-pub mod sort;
+// Regroups some classic sort algorithms
+// pub mod sort;
 
-/// Regroups a collection of useful objects
-pub mod utils;
+// Regroups a collection of useful objects
+// pub mod utils;

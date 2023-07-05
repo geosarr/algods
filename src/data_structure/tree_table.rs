@@ -118,7 +118,7 @@ impl<T: Ord, U> BTreeTable<T, U> {
     }
 }
 impl<T: Ord, U: Ord> BTreeTable<T, U> {
-    /// Returns for the largest key in the tree strictly inferior.
+    /// Returns the largest key in the tree strictly inferior to the input key.
     /// # Example
     /// ```
     /// use algods::data_structure::BTreeTable;
@@ -331,7 +331,8 @@ impl<T: Ord, U> BSearchTree<T, U> {
         }
         None
     }
-    /// Inserts a (key, value) pair in the tree.
+    /// Inserts a (key, value) pair in the tree. When the input key is
+    /// already on the map, then it replaces the old value with the new one specified.   
     /// # Example
     /// ```
     /// use algods::data_structure::BSearchTree;
@@ -412,7 +413,7 @@ impl<T: Eq + Ord, U: Ord> BSearchTree<T, U> {
             node
         }
     }
-    /// Returns for the largest key in the tree smaller or equal to the input key.
+    /// Returns the largest key in the tree smaller or equal to the input key.
     /// # Example
     /// ```
     /// use algods::data_structure::BSearchTree;
@@ -556,7 +557,7 @@ impl<T: Ord + Clone, U: Eq> OrdVecTable<T, U> {
             None
         }
     }
-    /// Returns for the largest key in the tree smaller or equal to the input key.
+    /// Returns the largest key in the tree smaller or equal to the input key.
     /// # Example
     /// ```
     /// use algods::data_structure::OrdVecTable;
@@ -585,7 +586,7 @@ impl<T: Ord + Clone, U: Eq> OrdVecTable<T, U> {
             }
         }
     }
-    /// Returns for the smallest key in the tree larger or equal to the input key.
+    /// Returns the smallest key in the tree larger or equal to the input key.
     /// # Example
     /// ```
     /// use algods::data_structure::OrdVecTable;
@@ -659,7 +660,7 @@ impl<T: Ord + Clone, U: Eq + Clone> OrdVecTable<T, U> {
         self.put(key, Some(value));
     }
     /// Deletes a key in the tree using a lazy implementation:
-    /// meaning that it replaces the value of the key by `None` if any.
+    /// meaning that it replaces the value of the key by `None` if any, but the key still persists on the map.
     /// # Example
     /// ```
     /// use algods::data_structure::OrdVecTable;
@@ -668,6 +669,7 @@ impl<T: Ord + Clone, U: Eq + Clone> OrdVecTable<T, U> {
     /// table.insert(-2, 3);
     /// table.insert(-1, 4);
     /// assert_eq!(table.delete(&-1), Some(4));
+    /// assert_eq!(table.delete(&-1), None);
     /// assert_eq!(table.delete(&0), None);
     /// ```
     pub fn delete(&mut self, key: &T) -> Option<U> {
@@ -691,9 +693,6 @@ impl<T, U> Pair<T, U> {
 
     pub fn second(&self) -> &U {
         &self.tuple.1
-    }
-    pub fn first_mut(&mut self) -> &mut T {
-        &mut self.tuple.0
     }
     pub fn second_mut(&mut self) -> &mut U {
         &mut self.tuple.1

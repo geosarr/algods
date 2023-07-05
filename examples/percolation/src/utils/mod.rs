@@ -1,12 +1,12 @@
 #[cfg(test)]
 mod unit_test;
-pub use crate::search::{UnionFind, UnionFindAlgorithm};
+use algods::search::{UnionFind, UnionFindAlgorithm};
 use rand::prelude::*;
 use std::collections::HashMap;
 use std::thread;
 use std::thread::JoinHandle;
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 struct Percolation {
     // number of rows or columns of a squared grid
     grid_size: usize,
@@ -17,6 +17,11 @@ struct Percolation {
     // Remark:
     // each site (i,j) corresponds to an object p = i*self.grid_size + j
     // for 0 <= i,j <= n-1 such that 0 <= p <= n^2 - 1
+}
+impl Default for Percolation {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Percolation {

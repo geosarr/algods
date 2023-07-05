@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use super::super::{EdgeWeightedDigraph, ShortestPath, ShortestPathAlgo};
+    use super::super::{EdgeWeightDiGraph, ShortestPath, ShortestPathAlgo};
 
     #[test]
     fn test_dijkstra() {
-        let mut graph = EdgeWeightedDigraph::init(9);
+        let mut graph = EdgeWeightDiGraph::init(9);
         graph.add_edge(0, 1, 1);
         graph.add_edge(0, 2, 1);
         graph.add_edge(0, 6, 2);
@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn test_shortest_path_ewdag() {
-        let mut graph = EdgeWeightedDigraph::init(8);
+        let mut graph = EdgeWeightDiGraph::init(8);
         graph.add_edge(0, 1, 5);
         graph.add_edge(0, 4, 9);
         graph.add_edge(0, 7, 8);

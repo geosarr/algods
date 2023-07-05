@@ -1,4 +1,4 @@
-use crate::graph::{processing::TopologicalSort, EdgeWeightedDigraph, FlowNetwork, Weight};
+use crate::graph::{processing::TopologicalSort, EdgeWeightDiGraph, Weight};
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
@@ -34,7 +34,7 @@ impl<T: Ord + std::hash::Hash> PartialOrd for CurrentNode<T> {
 /// for edge weighted directed acyclic graph with only
 /// positive weights using Dijkstra's algorithm
 pub fn dijkstra<T: Weight + std::hash::Hash>(
-    graph: &EdgeWeightedDigraph<T>,
+    graph: &EdgeWeightDiGraph<T>,
     source: usize,
     edge_to: &mut Vec<usize>,
     dist_to: &mut Vec<T>,
@@ -86,7 +86,7 @@ fn relax<T: Weight + std::hash::Hash>(
 /// for edge weighted directed acyclic graphs with possibly
 /// negative and/or positive weights
 pub fn shortest_path_ewdag<T: Weight + std::hash::Hash>(
-    graph: &EdgeWeightedDigraph<T>,
+    graph: &EdgeWeightDiGraph<T>,
     source: usize,
     edge_to: &mut Vec<usize>,
     dist_to: &mut Vec<T>,
@@ -122,7 +122,7 @@ pub fn shortest_path_ewdag<T: Weight + std::hash::Hash>(
 /// for edge weighted directed graph with negative weights  
 /// and without any negative cycle
 pub fn bellman_ford<T: Weight + std::hash::Hash>(
-    graph: &EdgeWeightedDigraph<T>,
+    graph: &EdgeWeightDiGraph<T>,
     source: usize,
     edge_to: &mut [usize],
     dist_to: &mut [T],

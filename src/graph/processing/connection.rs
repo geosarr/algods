@@ -1,6 +1,6 @@
 use crate::graph::processing::dfs;
 use crate::graph::processing::TopologicalSort;
-use crate::graph::{DirectedGraph, UndirectedGraph};
+use crate::graph::{DiGraph, Graph};
 pub struct ConnectedComponent {
     // Aims at answering the question are two vertives v and w connected in contant time
     // after preprocessing the graph
@@ -22,7 +22,7 @@ impl ConnectedComponent {
             ran: false,
         }
     }
-    pub fn find_cc(&mut self, graph: &UndirectedGraph) {
+    pub fn find_cc(&mut self, graph: &Graph) {
         // builds all the connected components from a graph
         let nb = graph.nb_vertices();
         for v in 0..nb {
@@ -73,7 +73,7 @@ impl StrongConnectedComponent {
             nb_scc: 0,
         }
     }
-    pub fn find_scc(&mut self, graph: &DirectedGraph) {
+    pub fn find_scc(&mut self, graph: &DiGraph) {
         // builds all the string connected components from a directed graph
 
         // run dfs on the reverse graph

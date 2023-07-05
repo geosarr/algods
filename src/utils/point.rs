@@ -251,7 +251,7 @@ impl<T> Segment<T> {
     }
 }
 impl<T: Clone + ToString> Segment<T> {
-    fn intersects(&self, other: &Self) -> bool {
+    fn _intersects(&self, other: &Self) -> bool {
         // tells whether or not self and other intersect
         if self.slope() != other.slope() {
             // the lines supporting both segments self and other interect

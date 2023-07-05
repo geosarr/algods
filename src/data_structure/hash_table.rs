@@ -29,7 +29,7 @@ pub struct SepChainTable<T, U> {
     //   so that N/chains ~ constant (where N is the number of keys in the table) with resizing strategies (e.g doubling and halving)
 }
 impl<T, U> SepChainTable<T, U> {
-    fn halve(&mut self) {
+    fn _halve(&mut self) {
         // reduce the size of the chain to free space
         self.vec.truncate(self.vec.len() / 2);
         self.chains /= 2;
@@ -59,7 +59,7 @@ impl<T, U> SepChainTable<T, U> {
     }
 }
 impl<T: Clone, U: Clone> SepChainTable<T, U> {
-    fn double(&mut self) {
+    fn _double(&mut self) {
         // doubles the number of chains
         self.vec.resize(2 * self.chains, Stack::new());
         self.chains *= 2;

@@ -26,7 +26,7 @@ mod tests {
     fn test_expand() {
         let bits = BitVec::from_bitslice(bits![0, 0, 1, 1]);
         let run_length = RunLength::init(bits);
-        let (compressed_bits, init_len) = run_length.compress();
+        let (compressed_bits, _) = run_length.compress();
         let expanded_bits = run_length.expand(compressed_bits, 4);
         assert_eq!(&expanded_bits, run_length.bits());
     }
