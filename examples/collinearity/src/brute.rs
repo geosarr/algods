@@ -1,5 +1,5 @@
+use crate::{Point, Segment};
 use algods::sort::InsertionSort;
-use algods::utils::{Point, Segment};
 
 #[derive(Debug)]
 pub struct BruteCollinearPoints<T> {

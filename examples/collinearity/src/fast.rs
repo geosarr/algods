@@ -1,4 +1,4 @@
-use algods::utils::{LineSegment, Point, Segment};
+use crate::point::{LineSegment, Point, Segment};
 // use std::collections::HashSet;
 
 #[derive(Debug)]

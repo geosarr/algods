@@ -7,27 +7,6 @@ use std::collections::HashSet;
 
 use super::Index;
 
-#[derive(Eq, Hash, PartialEq, Copy, Clone)]
-pub struct DiEdge {
-    from: usize, // not necessarily useful but keeps the idea of an edge
-    to: usize,
-}
-
-// impl DiEdge {
-//     pub fn init(origin: usize, destination: usize) -> Self {
-//         Self {
-//             from: origin,
-//             to: destination,
-//         }
-//     }
-//     pub fn to(&self) -> &usize {
-//         &self.to
-//     }
-//     pub fn from(&self) -> &usize {
-//         &self.from
-//     }
-// }
-
 /// Directed Graph based on adjacency-list
 /// ```
 /// use algods::graph::DiGraph;
@@ -222,7 +201,6 @@ impl<N: Index> DiGraph<N> {
         self.in_degree.resize(new_size, 0);
         self.nb_vertices += nb;
     }
-
     /// Gives a reference to the vertices a given vertex points to.
     /// ```
     /// use algods::graph::DiGraph;
@@ -241,7 +219,6 @@ impl<N: Index> DiGraph<N> {
         let v = vertex.to_usize();
         &self.out_edges[v]
     }
-
     /// Returns the vertices pointing to a given vertex
     /// ```
     /// use algods::graph::DiGraph;
@@ -362,135 +339,190 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
     }
 }
 
-// #[derive(Eq, Hash, PartialEq, Copy, Clone, Debug)]
-// struct WeightedDiEdge<T>
-// where
-//     T: Weight,
-// {
-//     from: usize, // not necessarily useful but keeps the idea of an edge
-//     to: usize,
-//     weight: T,
-// }
-// impl<T: Weight> WeightedDiEdge<T> {
-//     pub fn init(origin: usize, destination: usize, cost: T) -> Self {
-//         Self {
-//             from: origin,
-//             to: destination,
-//             weight: cost,
-//         }
-//     }
-//     pub fn to(&self) -> &usize {
-//         &self.to
-//     }
-//     pub fn from(&self) -> &usize {
-//         &self.from
-//     }
-//     pub fn weight(&self) -> &T {
-//         &self.weight
-//     }
-// }
+#[derive(Eq, Hash, PartialEq, Copy, Clone, Debug)]
+struct WeightedDiEdge<N, W>
+where
+    N: Index,
+    W: Weight,
+{
+    from: N, // not necessarily useful but keeps the idea of an edge
+    to: N,
+    weight: W,
+}
+impl<N: Index, W: Weight> WeightedDiEdge<N, W> {
+    pub fn init(origin: N, destination: N, weight: W) -> Self {
+        Self {
+            from: origin,
+            to: destination,
+            weight,
+        }
+    }
+    pub fn to(&self) -> &N {
+        &self.to
+    }
+    pub fn from(&self) -> &N {
+        &self.from
+    }
+    pub fn weight(&self) -> &W {
+        &self.weight
+    }
+}
 
-// pub struct EdgeWeightDiGraph<T>
-// where
-//     T: Weight,
-// {
-//     out_edges: Vec<HashSet<WeightedDiEdge<T>>>,
-//     nb_edges: usize,
-//     nb_vertices: usize,
-// }
+#[derive(Clone, Debug)]
+pub struct EdgeWeightedDiGraph<N, W>
+where
+    N: Index,
+    W: Weight,
+{
+    out_edges: Vec<HashSet<WeightedDiEdge<N, W>>>,
+    nb_edges: usize,
+    nb_vertices: usize,
+    in_degree: Vec<usize>,
+}
 
-// impl<T: Weight> Default for EdgeWeightDiGraph<T> {
-//     fn default() -> Self {
-//         Self::new()
-//     }
-// }
-// impl<T: Weight> EdgeWeightDiGraph<T> {
-//     /// Creates a new empty graph.
-//     pub fn new() -> Self {
-//         Self {
-//             out_edges: Vec::new(),
-//             nb_edges: 0,
-//             nb_vertices: 0,
-//         }
-//     }
-//     /// Creates a new graph with unconnected `nb_objects` objects
-//     pub fn init(nb_objects: usize) -> Self {
-//         let mut graph = Self::new();
-//         graph.nb_vertices = nb_objects;
-//         graph.out_edges = Vec::with_capacity(nb_objects);
-//         for _ in 0..nb_objects {
-//             graph.out_edges.push(HashSet::new());
-//         }
-//         graph
-//     }
-//     /// Gives the number of edges
-//     pub fn nb_edges(&self) -> usize {
-//         // run time complexity O(1)
-//         self.nb_edges
-//     }
-//     /// Gives the number of vertices
-//     pub fn nb_vertices(&self) -> usize {
-//         // run time complexity O(1)
-//         self.nb_vertices
-//     }
-//     /// Adds a new edge of the graph
-//     pub fn add_edge(&mut self, u: usize, v: usize, w: T) {
-//         // adds an edge from v to w to the graph
-//         // run time complexity O(1)
-//         assert!(self.nb_vertices >= std::cmp::max(u, v));
-//         let edge = WeightedDiEdge::init(u, v, w);
-//         // println!("{edge:?}");
-//         let is_new = self.out_edges[u].insert(edge);
-//         if is_new {
-//             // u --> v is a new directed edge
-//             self.nb_edges += 1;
-//         }
-//     }
-//     /// Adds a new vertex to the graph
-//     pub fn add_vertex(&mut self) {
-//         self.out_edges.push(HashSet::new());
-//         self.nb_vertices += 1;
-//     }
-//     /// Returns an immutable reference to the set of edges
-//     pub fn vertex_edges(&self, v: &usize) -> Vec<(&usize, &T)> {
-//         // gets all the vertices linked to a given vertex v,
-//         // that is the adjacent vertices of v
-//         // run time complexity O(1)
-//         self.out_edges[*v]
-//             .iter()
-//             .map(|edge| (edge.to(), edge.weight()))
-//             .collect::<Vec<(&usize, &T)>>()
-//     }
-//     /// Gives the number of vertices a vertex point to
-//     pub fn out_degree(&self, v: &usize) -> usize {
-//         // the number of vertices the vertex v points to
-//         self.vertex_edges(v).len()
-//     }
-//     /// Gives the number of vertices pointing to a vertex
-//     pub fn in_degree(&self, v: &usize) -> usize {
-//         // gives the number of vertices pointing to vertex v
-//         self.out_edges
-//             .iter()
-//             .map(|adj| usize::from(adj.iter().any(|edge| v == edge.to())))
-//             .sum()
-//     }
-//     /// Gives the integer part of the average number of edges per vertex
-//     pub fn average_degree(&self) -> usize {
-//         // gets the average number of degree of the graph
-//         if self.nb_vertices > 0 {
-//             self.nb_edges / self.nb_vertices
-//         } else {
-//             panic!("No vertex in the graph");
-//         }
-//     }
-//     /// Returns the number of vertices pointing to themselves
-//     pub fn self_loop_number(&self) -> usize {
-//         self.out_edges
-//             .iter()
-//             .map(|adj| usize::from(adj.iter().any(|edge| edge.from() == edge.to())))
-//             .sum()
-//     }
-// }
+impl<N: Index, W: Weight> Default for EdgeWeightedDiGraph<N, W> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl<N: Index, W: Weight> EdgeWeightedDiGraph<N, W> {
+    /// Creates an empty graph.
+    /// ```
+    /// use algods::graph::EdgeWeightedDiGraph;
+    /// let graph = EdgeWeightedDiGraph::<u8, i16>::new();
+    /// assert_eq!(graph.nb_vertices(), 0);
+    /// assert_eq!(graph.nb_edges(), 0);
+    /// ```
+    pub fn new() -> Self {
+        Self {
+            out_edges: Vec::new(),
+            nb_edges: 0,
+            nb_vertices: 0,
+            in_degree: Vec::new(),
+        }
+    }
+    /// Creates a graph with a given number of vertices and without edges.
+    /// ```
+    /// use algods::graph::EdgeWeightedDiGraph;
+    /// let graph = EdgeWeightedDiGraph::<u16, usize>::init(10);
+    /// assert_eq!(graph.nb_vertices(), 10);
+    /// assert_eq!(graph.nb_edges(), 0);
+    /// ```
+    pub fn init(nb_vertices: usize) -> Self {
+        assert!(nb_vertices < N::maximum().to_usize());
+        let mut graph = Self::new();
+        graph.out_edges = vec![HashSet::new(); nb_vertices];
+        graph.nb_vertices = nb_vertices;
+        graph.in_degree = vec![0; nb_vertices];
+        graph
+    }
+    /// Creates a new graph from a `Vec` of edges.
+    /// ```
+    /// use algods::graph::EdgeWeightedDiGraph;
+    /// let mut graph = EdgeWeightedDiGraph::<u8, isize>::from_vec(vec![
+    ///     (0, 0, 0),
+    ///     (1, 0, -1),
+    ///     (0, 2, 3),
+    ///     (3, 1, 10),
+    ///     (2, 3, 5),
+    /// ]);
+    /// assert_eq!(graph.nb_vertices(), 4);
+    /// assert_eq!(graph.nb_edges(), 5);
+    /// ```
+    pub fn from_vec(edges: Vec<(N, N, W)>) -> Self {
+        let mut graph = Self::new();
+        let nb_edges = edges.len();
+        for edge in edges.iter().take(nb_edges) {
+            let source = edge.0;
+            let target = edge.1;
+            let weight = edge.2;
+            let max_vertex = max(source, target).to_usize();
+            if max_vertex >= graph.nb_vertices {
+                graph.add_vertices(max_vertex - graph.nb_vertices + 1);
+            }
+            graph.add_edge(source, target, weight);
+            graph.in_degree[target.to_usize()] += 1;
+        }
+        graph
+    }
+    /// Gives the number of edges
+    pub fn nb_edges(&self) -> usize {
+        // run time complexity O(1)
+        self.nb_edges
+    }
+    /// Gives the number of vertices
+    pub fn nb_vertices(&self) -> usize {
+        // run time complexity O(1)
+        self.nb_vertices
+    }
+    /// Adds a new edge of the graph
+    pub fn add_edge(&mut self, source: N, target: N, weight: W) {
+        // adds an edge from u to v with weight w to the graph
+        // run time complexity O(1)
+        let s = source.to_usize();
+        let t = target.to_usize();
+        assert!(self.nb_vertices >= std::cmp::max(s, t));
+        let edge = WeightedDiEdge::init(source, target, weight);
+        // println!("{edge:?}");
+        let target_is_new = self.out_edges[s].insert(edge);
+        let ind_t_is_new = usize::from(target_is_new);
+        self.in_degree[t] += ind_t_is_new;
+        self.nb_edges += ind_t_is_new;
+    }
+    /// Adds some vertices to the graph.
+    /// ```
+    /// use algods::graph::DiGraph;
+    /// let mut graph = DiGraph::<u16>::new();
+    /// graph.add_vertices(4);
+    /// graph.add_vertex();
+    /// graph.add_vertex();
+    /// graph.add_edge(0, 1);
+    /// graph.add_edge(2, 1);
+    /// graph.add_edge(1, 1);
+    /// assert_eq!(graph.nb_vertices(), 6);
+    /// assert_eq!(graph.nb_edges(), 3);
+    /// ```
+    pub fn add_vertices(&mut self, nb: usize) {
+        let new_size = self.nb_vertices + nb;
+        assert!(new_size < N::maximum().to_usize());
+        self.out_edges.resize(new_size, HashSet::new());
+        self.in_degree.resize(new_size, 0);
+        self.nb_vertices += nb;
+    }
+    /// Adds a new vertex to the graph
+    pub fn add_vertex(&mut self) {
+        self.out_edges.push(HashSet::new());
+        self.nb_vertices += 1;
+    }
+    /// Gives the number of vertices a vertex point to
+    pub fn out_degree(&self, vertex: &N) -> usize {
+        // the number of vertices the vertex v points to
+        let v = vertex.to_usize();
+        self.out_edges[v].len()
+    }
+    /// Gives the number of vertices pointing to a vertex
+    pub fn in_degree(&self, vertex: &N) -> usize {
+        // gives the number of vertices pointing to vertex v
+        let v = vertex.to_usize();
+        self.in_degree[v]
+    }
+    /// Gives the integer part of the average number of edges per vertex
+    pub fn average_degree(&self) -> usize {
+        // gets the average number of degree of the graph
+        if self.nb_vertices > 0 {
+            self.nb_edges / self.nb_vertices
+        } else {
+            panic!("No vertex in the graph");
+        }
+    }
+    /// Returns the number of vertices pointing to themselves
+    pub fn self_loop_number(&self) -> usize {
+        self.out_edges
+            .iter()
+            .map(|adj| usize::from(adj.iter().any(|edge| edge.from() == edge.to())))
+            .sum()
+    }
+}
 // impl<T: Weight> VertexInfo for EdgeWeightDiGraph<T> {
 //     fn vertex_edges(&self, v: &usize) -> Vec<&usize> {
 //         // gets all the vertices linked to a given vertex v,

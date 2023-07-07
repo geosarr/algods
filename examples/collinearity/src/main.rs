@@ -1,7 +1,8 @@
 mod fast;
-use algods::utils::Point;
+mod point;
 use clap::Parser;
 use fast::FastCollinearPoints;
+use point::Point;
 
 #[derive(Parser)]
 struct Cli {

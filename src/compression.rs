@@ -109,7 +109,7 @@ where
         if len > 0 {
             let mut old = self.bits[0];
             let mut run = 0;
-            if self.bits[0] == true {
+            if self.bits[0] {
                 // The first bit is 1
                 comp.push(0);
             }

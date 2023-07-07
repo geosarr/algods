@@ -4,8 +4,12 @@ mod directed_graph;
 pub mod processing;
 mod undirected_graph;
 
-pub use directed_graph::DiGraph; //, EdgeWeightDiGraph, FlowEdge, FlowNetwork};
+pub use directed_graph::{DiGraph, EdgeWeightedDiGraph}; //, , FlowEdge, FlowNetwork};
 pub use undirected_graph::Graph;
+
+use std::cmp::Ord;
+use std::hash::Hash;
+use std::ops::{Add, AddAssign, Sub};
 
 /// This trait gives some basic information on vertices
 pub trait VertexInfo<N>
@@ -15,76 +19,57 @@ where
     fn vertex_edges(&self, vertex: &N) -> Vec<&N>;
     fn nb_vertices(&self) -> usize;
 }
-pub trait Zero {
-    fn zero() -> Self;
-}
-// pub trait One {
-//     fn one() -> Self;
-// }
-pub trait Index:
-    Zero
-    // + One
-    + std::cmp::Ord
-    + std::hash::Hash
-    + std::convert::From<bool>
-    + std::ops::Sub<Output = Self>
-    + std::ops::Add<Output = Self>
-    + Copy
-    + std::ops::AddAssign
-{
-    fn to_usize(self) -> usize;
+pub trait Max {
     fn maximum() -> Self;
+}
+pub trait Base: Ord + Hash + Sub<Output = Self> + Add<Output = Self> + Copy {}
+pub trait Convert: std::convert::From<bool> + Copy + AddAssign {
+    fn to_usize(self) -> usize;
     fn to_vertex(nb: usize) -> Self;
 }
+pub trait Index: Base + Convert + Max {}
 // Greatly inspired by :
 // https://github.com/s1ck/graph/blob/main/crates/builder/src/index.rs
-pub trait Weight:
-    Copy
-    + Index
-    + std::ops::Add<Output = Self>
-    + std::ops::Sub<Output = Self>
-    + Ord
-    + Eq
-    + std::hash::Hash
-    + PartialEq
-    + std::fmt::Display
-{
-}
-macro_rules! impl_traits {
+pub trait Weight: Hash + Clone + Copy + Eq + PartialEq + std::fmt::Display {}
+macro_rules! impl_index {
     ($TYPE:ty) => {
-        impl Zero for $TYPE {
-            fn zero() -> Self {
-                0 as $TYPE
-            }
-        }
-        // impl One for $TYPE {
-        //     fn one() -> Self {
-        //         1 as $TYPE
-        //     }
-        // }
-        impl Index for $TYPE {
-            fn to_usize(self) -> usize {
-                self as usize
-            }
+        impl Base for $TYPE {}
+        impl Max for $TYPE {
             fn maximum() -> Self {
                 <$TYPE>::MAX
+            }
+        }
+        impl Convert for $TYPE {
+            fn to_usize(self) -> usize {
+                self as usize
             }
             fn to_vertex(nb: usize) -> Self {
                 nb as Self
             }
         }
+        impl Index for $TYPE {}
+    };
+}
+macro_rules! impl_weight {
+    ($TYPE:ty) => {
         impl Weight for $TYPE {}
     };
 }
-impl_traits!(u8);
-impl_traits!(u16);
-impl_traits!(u32);
-impl_traits!(u64);
-impl_traits!(u128);
-impl_traits!(usize);
-// impl_traits!(i8);
-// impl_traits!(i16);
-// impl_traits!(i32);
-// impl_traits!(i64);
-// impl_traits!(i128);
-// impl_traits!(isize);
+impl_index!(u8);
+impl_index!(u16);
+impl_index!(u32);
+impl_index!(u64);
+impl_index!(u128);
+impl_index!(usize);
+impl_weight!(u8);
+impl_weight!(u16);
+impl_weight!(u32);
+impl_weight!(u64);
+impl_weight!(u128);
+impl_weight!(usize);
+impl_weight!(i8);
+impl_weight!(i16);
+impl_weight!(i32);
+impl_weight!(i64);
+impl_weight!(i128);
+impl_weight!(isize);
