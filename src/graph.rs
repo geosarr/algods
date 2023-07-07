@@ -1,7 +1,7 @@
 mod directed_graph;
 
 /// This module collects some graph processing algorithms
-// pub mod processing;
+pub mod processing;
 mod undirected_graph;
 
 pub use directed_graph::DiGraph; //, EdgeWeightDiGraph, FlowEdge, FlowNetwork};
@@ -18,25 +18,29 @@ where
 pub trait Zero {
     fn zero() -> Self;
 }
+// pub trait One {
+//     fn one() -> Self;
+// }
 pub trait Index:
     Zero
+    // + One
     + std::cmp::Ord
     + std::hash::Hash
     + std::convert::From<bool>
+    + std::ops::Sub<Output = Self>
     + std::ops::Add<Output = Self>
     + Copy
     + std::ops::AddAssign
 {
     fn to_usize(self) -> usize;
     fn maximum() -> Self;
-    fn to_index(nb: usize) -> Self;
+    fn to_vertex(nb: usize) -> Self;
 }
 // Greatly inspired by :
 // https://github.com/s1ck/graph/blob/main/crates/builder/src/index.rs
 pub trait Weight:
     Copy
     + Index
-    + Zero
     + std::ops::Add<Output = Self>
     + std::ops::Sub<Output = Self>
     + Ord
@@ -53,6 +57,11 @@ macro_rules! impl_traits {
                 0 as $TYPE
             }
         }
+        // impl One for $TYPE {
+        //     fn one() -> Self {
+        //         1 as $TYPE
+        //     }
+        // }
         impl Index for $TYPE {
             fn to_usize(self) -> usize {
                 self as usize
@@ -60,7 +69,7 @@ macro_rules! impl_traits {
             fn maximum() -> Self {
                 <$TYPE>::MAX
             }
-            fn to_index(nb: usize) -> Self {
+            fn to_vertex(nb: usize) -> Self {
                 nb as Self
             }
         }

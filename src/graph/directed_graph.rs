@@ -4,7 +4,6 @@ use crate::graph::{VertexInfo, Weight};
 use std::cmp::max;
 // use crate::utils::read_lines;
 use std::collections::HashSet;
-use std::path::Path;
 
 use super::Index;
 
@@ -28,17 +27,21 @@ pub struct DiEdge {
 //         &self.from
 //     }
 // }
-// /// Directed Graph based on adjacency-list
-// /// ```
-// /// use algods::graph::DiDiGraph;
-// /// let mut graph = DiGraph::init(3);
-// /// graph.add_edge(0, 1);
-// /// graph.add_edge(1, 2);
-// /// assert_eq!(graph.nb_vertices(), 3);
-// /// assert_eq!(graph.nb_edges(), 2);
-// /// graph.add_vertex();
-// /// assert_eq!(graph.nb_vertices(), 4);
-// /// ```
+
+/// Directed Graph based on adjacency-list
+/// ```
+/// use algods::graph::DiGraph;
+/// let mut graph = DiGraph::<u8>::init(3);
+/// graph.add_edge(0, 1);
+/// graph.add_edge(1, 2);
+/// assert_eq!(graph.nb_vertices(), 3);
+/// assert_eq!(graph.nb_edges(), 2);
+/// graph.add_vertex();
+/// assert_eq!(graph.nb_vertices(), 4);
+/// graph.add_edge(0, 0);
+/// assert_eq!(graph.self_loop_number(), 1);
+/// ```
+#[derive(Debug, PartialEq, Eq)]
 pub struct DiGraph<N>
 where
     N: Index,
@@ -46,7 +49,7 @@ where
     // implements an adjacency-list graph
     // where vertices have indices 0, ..., nb_objects
     // and each vertex is associated to the vertices it points to
-    data: Vec<HashSet<N>>,
+    out_edges: Vec<HashSet<N>>,
     nb_edges: usize,
     nb_vertices: usize,
     in_degree: Vec<usize>,
@@ -66,7 +69,7 @@ impl<N: Index> DiGraph<N> {
     /// ```
     pub fn new() -> Self {
         Self {
-            data: Vec::new(),
+            out_edges: Vec::new(),
             nb_edges: 0,
             nb_vertices: 0,
             in_degree: Vec::new(),
@@ -82,59 +85,60 @@ impl<N: Index> DiGraph<N> {
     pub fn init(nb_vertices: usize) -> Self {
         assert!(nb_vertices < N::maximum().to_usize());
         let mut graph = Self::new();
-        graph.data = vec![HashSet::new(); nb_vertices];
+        graph.out_edges = vec![HashSet::new(); nb_vertices];
         graph.nb_vertices = nb_vertices;
         graph.in_degree = vec![0; nb_vertices];
         graph
     }
-    //     /// Creates a new graph which has the same vertices but edges reverted.
-    //     pub fn reverse(&self) -> Self {
-    //         // Gets the reverse graph
-    //         let nb_vertices = self.nb_vertices;
-    //         let mut rev_graph = Self::init(nb_vertices);
-    //         for v in 0..nb_vertices {
-    //             let adj_v = self.vertex_edges(&v);
-    //             for w in adj_v {
-    //                 rev_graph.add_edge(*w, v);
-    //             }
-    //         }
-    //         rev_graph
-    //     }
-    //     /// Creates a graph from a file
-    //     pub fn from_file<P>(filename: P, sep: char, nb_vertices: usize) -> Self
-    //     where
-    //         P: AsRef<Path>,
-    //     {
-    //         // Builds a directed graph from a file with edges.
-    //         // All the elements of each row should be non
-    //         // negative integers separated by the value of the sep
-    //         // argument, each row represent one or many edges from the first vertex to
-    //         // the other ones. If there is only one value, it will be skipped
-    //         let mut nb_iter = 0;
-    //         println!("Initializing the graph");
-    //         let mut dg = DiGraph::init(nb_vertices);
-    //         match read_lines(filename) {
-    //             Ok(lines) => {
-    //                 for (_, line) in lines.enumerate() {
-    //                     if let Ok(row) = line {
-    //                         let values = row.split(sep).collect::<Vec<&str>>();
-    //                         for i in 1..values.len() {
-    //                             dg.add_edge(
-    //                                 values[0].parse::<usize>().unwrap(),
-    //                                 values[i].parse::<usize>().unwrap(),
-    //                             );
-    //                         }
-    //                         // println!("{:?}", dg.vertex_edges(&values[0].parse::<usize>().unwrap()));
-    //                         println!("{nb_iter}");
-    //                         nb_iter += 1
-    //                     }
-    //                 }
-    //             }
-    //             Err(error) => panic!("{error}"),
-    //         }
-    //         dg
-    // }
-
+    /// Creates a new graph from a `Vec` of edges.
+    /// ```
+    /// use algods::graph::DiGraph;
+    /// let mut graph = DiGraph::<u8>::from_vec(vec![(0, 0), (1, 0), (0, 2), (3, 1), (2, 3)]);
+    /// assert_eq!(graph.nb_vertices(), 4);
+    /// assert_eq!(graph.nb_edges(), 5);
+    /// ```
+    pub fn from_vec(edges: Vec<(N, N)>) -> Self {
+        let mut graph = Self::new();
+        let nb_edges = edges.len();
+        for edge in edges.iter().take(nb_edges) {
+            let source = edge.0;
+            let target = edge.1;
+            let max_vertex = max(source, target).to_usize();
+            if max_vertex >= graph.nb_vertices {
+                graph.add_vertices(max_vertex - graph.nb_vertices + 1);
+            }
+            graph.add_edge(source, target);
+            graph.in_degree[target.to_usize()] += 1;
+        }
+        graph
+    }
+    /// Creates a new graph which has the same vertices but edges reverted.
+    /// ```
+    /// use algods::graph::DiGraph;
+    /// let mut graph = DiGraph::<u8>::init(4);
+    /// graph.add_edge(0, 0);
+    /// graph.add_edge(0, 1);
+    /// graph.add_edge(0, 2);
+    /// graph.add_edge(1, 3);
+    /// graph.add_edge(3, 2);
+    /// let expected_reverse_graph =
+    /// DiGraph::<u8>::from_vec(vec![(0, 0), (1, 0), (2, 0), (3, 1), (2, 3)]);
+    /// assert_eq!(graph.reverse(), expected_reverse_graph);
+    /// assert_eq!(expected_reverse_graph.in_degree(&0), 3);
+    /// ```
+    pub fn reverse(&self) -> Self {
+        // Gets the reverse graph
+        let mut rev_graph = Self::init(self.nb_vertices);
+        for v in 0..self.nb_vertices {
+            let vertex_v = N::to_vertex(v);
+            let adj_v = self.out_edges(&vertex_v);
+            for vertex_w in adj_v {
+                rev_graph.add_edge(*vertex_w, vertex_v);
+                rev_graph.in_degree[v] += 1;
+            }
+        }
+        rev_graph
+    }
     /// Returns the number of edges in the graph.
     /// ```
     /// use algods::graph::DiGraph;
@@ -174,16 +178,16 @@ impl<N: Index> DiGraph<N> {
     /// assert_eq!(graph.nb_edges(), 5);
     /// assert_eq!(graph.nb_vertices(), 4);
     /// ```
-    pub fn add_edge(&mut self, vertex_v: N, vertex_w: N) {
-        // adds an edge from v to w to the graph
+    pub fn add_edge(&mut self, source: N, target: N) {
+        // adds an edge from source to target to the graph
         // run time complexity O(1)
-        let v = vertex_v.to_usize();
-        let w = vertex_w.to_usize();
-        assert!(self.nb_vertices >= max(v, w));
-        let w_is_new = self.data[v].insert(vertex_w);
-        let ind_w_is_new = usize::from(w_is_new);
-        self.in_degree[w] += ind_w_is_new;
-        self.nb_edges += ind_w_is_new;
+        let s = source.to_usize();
+        let t = target.to_usize();
+        assert!(self.nb_vertices >= max(s, t));
+        let target_is_new = self.out_edges[s].insert(target);
+        let ind_t_is_new = usize::from(target_is_new);
+        self.in_degree[t] += ind_t_is_new;
+        self.nb_edges += ind_t_is_new;
     }
     /// Adds a vertex to the graph.
     /// ```
@@ -195,7 +199,7 @@ impl<N: Index> DiGraph<N> {
     /// assert_eq!(graph.nb_vertices(), 3);
     /// ```
     pub fn add_vertex(&mut self) {
-        self.data.push(HashSet::new());
+        self.out_edges.push(HashSet::new());
         self.nb_vertices += 1;
     }
     /// Adds some vertices to the graph.
@@ -214,7 +218,7 @@ impl<N: Index> DiGraph<N> {
     pub fn add_vertices(&mut self, nb: usize) {
         let new_size = self.nb_vertices + nb;
         assert!(new_size < N::maximum().to_usize());
-        self.data.resize(new_size, HashSet::new());
+        self.out_edges.resize(new_size, HashSet::new());
         self.in_degree.resize(new_size, 0);
         self.nb_vertices += nb;
     }
@@ -235,7 +239,7 @@ impl<N: Index> DiGraph<N> {
         // that is the adjacent vertices of v
         // run time complexity O(1)
         let v = vertex.to_usize();
-        &self.data[v]
+        &self.out_edges[v]
     }
 
     /// Returns the vertices pointing to a given vertex
@@ -252,7 +256,7 @@ impl<N: Index> DiGraph<N> {
     /// assert_eq!(graph.in_edges(&0), HashSet::from([0, 1, 2]));
     /// ```
     pub fn in_edges(&self, vertex: &N) -> HashSet<N> {
-        self.data
+        self.out_edges
             .iter()
             .enumerate()
             .filter_map(|(source, adj)| {
@@ -262,7 +266,7 @@ impl<N: Index> DiGraph<N> {
                     None
                 }
             })
-            .map(|source| N::to_index(source))
+            .map(|source| N::to_vertex(source))
             .collect::<HashSet<_>>()
     }
     /// Gives the number of vertices a vertex points to.
@@ -273,9 +277,10 @@ impl<N: Index> DiGraph<N> {
     /// graph.add_edge(0, 1);
     /// graph.add_edge(2, 1);
     /// graph.add_edge(0, 2);
+    /// graph.add_edge(2, 2);
     /// assert_eq!(graph.out_degree(&0), 2);
     /// assert_eq!(graph.out_degree(&1), 0);
-    /// assert_eq!(graph.out_degree(&2), 1);
+    /// assert_eq!(graph.out_degree(&2), 2);
     /// ```
     pub fn out_degree(&self, vertex: &N) -> usize {
         // the number of vertices the vertex v points to
@@ -337,10 +342,10 @@ impl<N: Index> DiGraph<N> {
     /// assert_eq!(graph.self_loop_number(), 3);
     /// ```
     pub fn self_loop_number(&self) -> usize {
-        self.data
+        self.out_edges
             .iter()
             .enumerate()
-            .map(|(source, adj)| usize::from(adj.contains(&N::to_index(source))))
+            .map(|(source, adj)| usize::from(adj.contains(&N::to_vertex(source))))
             .sum()
     }
 }
@@ -349,7 +354,7 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
         // gets all the vertices linked to a given vertex v,
         // that is the adjacent vertices of v
         let v = vertex.to_usize();
-        self.data[v].iter().collect::<Vec<&N>>()
+        self.out_edges[v].iter().collect::<Vec<&N>>()
     }
     fn nb_vertices(&self) -> usize {
         // run time complexity O(1)
@@ -389,7 +394,7 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 // where
 //     T: Weight,
 // {
-//     data: Vec<HashSet<WeightedDiEdge<T>>>,
+//     out_edges: Vec<HashSet<WeightedDiEdge<T>>>,
 //     nb_edges: usize,
 //     nb_vertices: usize,
 // }
@@ -403,7 +408,7 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //     /// Creates a new empty graph.
 //     pub fn new() -> Self {
 //         Self {
-//             data: Vec::new(),
+//             out_edges: Vec::new(),
 //             nb_edges: 0,
 //             nb_vertices: 0,
 //         }
@@ -412,9 +417,9 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //     pub fn init(nb_objects: usize) -> Self {
 //         let mut graph = Self::new();
 //         graph.nb_vertices = nb_objects;
-//         graph.data = Vec::with_capacity(nb_objects);
+//         graph.out_edges = Vec::with_capacity(nb_objects);
 //         for _ in 0..nb_objects {
-//             graph.data.push(HashSet::new());
+//             graph.out_edges.push(HashSet::new());
 //         }
 //         graph
 //     }
@@ -435,7 +440,7 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //         assert!(self.nb_vertices >= std::cmp::max(u, v));
 //         let edge = WeightedDiEdge::init(u, v, w);
 //         // println!("{edge:?}");
-//         let is_new = self.data[u].insert(edge);
+//         let is_new = self.out_edges[u].insert(edge);
 //         if is_new {
 //             // u --> v is a new directed edge
 //             self.nb_edges += 1;
@@ -443,7 +448,7 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //     }
 //     /// Adds a new vertex to the graph
 //     pub fn add_vertex(&mut self) {
-//         self.data.push(HashSet::new());
+//         self.out_edges.push(HashSet::new());
 //         self.nb_vertices += 1;
 //     }
 //     /// Returns an immutable reference to the set of edges
@@ -451,7 +456,7 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //         // gets all the vertices linked to a given vertex v,
 //         // that is the adjacent vertices of v
 //         // run time complexity O(1)
-//         self.data[*v]
+//         self.out_edges[*v]
 //             .iter()
 //             .map(|edge| (edge.to(), edge.weight()))
 //             .collect::<Vec<(&usize, &T)>>()
@@ -464,7 +469,7 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //     /// Gives the number of vertices pointing to a vertex
 //     pub fn in_degree(&self, v: &usize) -> usize {
 //         // gives the number of vertices pointing to vertex v
-//         self.data
+//         self.out_edges
 //             .iter()
 //             .map(|adj| usize::from(adj.iter().any(|edge| v == edge.to())))
 //             .sum()
@@ -480,7 +485,7 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //     }
 //     /// Returns the number of vertices pointing to themselves
 //     pub fn self_loop_number(&self) -> usize {
-//         self.data
+//         self.out_edges
 //             .iter()
 //             .map(|adj| usize::from(adj.iter().any(|edge| edge.from() == edge.to())))
 //             .sum()
@@ -490,7 +495,7 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //     fn vertex_edges(&self, v: &usize) -> Vec<&usize> {
 //         // gets all the vertices linked to a given vertex v,
 //         // that is the adjacent vertices of v
-//         self.data[*v]
+//         self.out_edges[*v]
 //             .iter()
 //             .map(|edge| edge.to())
 //             .collect::<Vec<&usize>>()
@@ -561,7 +566,7 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 // where
 //     T: Weight,
 // {
-//     data: Vec<Vec<FlowEdge<T>>>,
+//     out_edges: Vec<Vec<FlowEdge<T>>>,
 //     nb_edges: usize,
 //     nb_vertices: usize,
 // }
@@ -570,7 +575,7 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //     /// Creates a new empty graph.
 //     pub fn new() -> Self {
 //         Self {
-//             data: Vec::new(),
+//             out_edges: Vec::new(),
 //             nb_edges: 0,
 //             nb_vertices: 0,
 //         }
@@ -579,9 +584,9 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //     pub fn init(nb_objects: usize) -> Self {
 //         let mut graph = Self::new();
 //         graph.nb_vertices = nb_objects;
-//         graph.data = Vec::with_capacity(nb_objects);
+//         graph.out_edges = Vec::with_capacity(nb_objects);
 //         for _ in 0..nb_objects {
-//             graph.data.push(Vec::new());
+//             graph.out_edges.push(Vec::new());
 //         }
 //         graph
 //     }
@@ -603,15 +608,15 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //         let zero = Weight::zero();
 //         let forward_edge = FlowEdge::init(from, to, zero, cap);
 //         let backward_edge = FlowEdge::init(to, from, zero, zero);
-//         if !self.data[from].contains(&forward_edge) {
-//             self.data[from].push(forward_edge);
-//             self.data[to].push(backward_edge);
+//         if !self.out_edges[from].contains(&forward_edge) {
+//             self.out_edges[from].push(forward_edge);
+//             self.out_edges[to].push(backward_edge);
 //             self.nb_edges += 1;
 //         }
 //     }
 //     /// Adds a new vertex to the graph
 //     pub fn add_vertex(&mut self) {
-//         self.data.push(Vec::new());
+//         self.out_edges.push(Vec::new());
 //         self.nb_vertices += 1;
 //     }
 //     /// Returns an immutable reference to the set of edges
@@ -619,13 +624,13 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //         // gets all the vertices linked to a given vertex v,
 //         // that is the adjacent vertices of v
 //         // run time complexity O(1)
-//         self.data[*v].iter().collect::<Vec<&FlowEdge<T>>>()
+//         self.out_edges[*v].iter().collect::<Vec<&FlowEdge<T>>>()
 //     }
 //     pub fn vertex_edges_mut(&mut self, v: &usize) -> std::slice::IterMut<'_, FlowEdge<T>> {
 //         // gets all the vertices linked to a given vertex v,
 //         // that is the adjacent vertices of v
 //         // run time complexity O(1)
-//         self.data[*v].iter_mut()
+//         self.out_edges[*v].iter_mut()
 //     }
 //     /// Gives the number of vertices a vertex point to
 //     pub fn out_degree(&self, v: &usize) -> usize {
@@ -635,7 +640,7 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //     /// Gives the number of vertices pointing to a vertex
 //     pub fn in_degree(&self, v: &usize) -> usize {
 //         // gives the number of vertices pointing to vertex v
-//         self.data
+//         self.out_edges
 //             .iter()
 //             .map(|adj| usize::from(adj.iter().any(|edge| v == edge.to())))
 //             .sum()
@@ -651,7 +656,7 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
 //     }
 //     /// Returns the number of vertices pointing to themselves
 //     pub fn self_loop_number(&self) -> usize {
-//         self.data
+//         self.out_edges
 //             .iter()
 //             .map(|adj| usize::from(adj.iter().any(|edge| edge.from() == edge.to())))
 //             .sum()

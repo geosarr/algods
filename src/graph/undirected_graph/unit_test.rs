@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use super::super::Graph;
-    // use crate::graph::processing::{BreadthFirstSearch, ConnectedComponent, DepthFirstSearch};
+    use crate::graph::processing::{BreadthFirstSearch, ConnectedComponent, DepthFirstSearch}; //, ConnectedComponent, DepthFirstSearch};
 
     #[test]
     fn test_undirected_graph() {
@@ -34,68 +34,72 @@ mod tests {
         graph.average_degree();
     }
 
-    // #[test]
-    // fn test_dfs() {
-    //     let mut graph = Graph::init(9);
-    //     graph.add_edge(0, 1);
-    //     graph.add_edge(0, 2);
-    //     graph.add_edge(0, 6);
-    //     graph.add_edge(0, 5);
-    //     graph.add_edge(6, 4);
-    //     graph.add_edge(4, 3);
-    //     graph.add_edge(5, 4);
-    //     graph.add_edge(5, 3);
+    #[test]
+    fn test_dfs() {
+        let mut graph = Graph::<u8>::init(9);
+        graph.add_edge(0, 1);
+        graph.add_edge(0, 2);
+        graph.add_edge(0, 6);
+        graph.add_edge(0, 5);
+        graph.add_edge(6, 4);
+        graph.add_edge(4, 3);
+        graph.add_edge(5, 4);
+        graph.add_edge(5, 3);
 
-    //     let mut dfs = DepthFirstSearch::init(graph.nb_vertices, 0);
-    //     dfs.find_paths(&graph);
-    //     assert_eq!(dfs.path_to(2), Some(vec![2, 0]));
-    //     assert!(
-    //         dfs.path_to(4) == Some(vec![4, 6, 0])
-    //             || dfs.path_to(4) == Some(vec![4, 5, 0])
-    //             || dfs.path_to(4) == Some(vec![4, 3, 5, 0])
-    //     );
-    // }
+        let mut dfs = DepthFirstSearch::init(graph.nb_vertices, 0);
+        dfs.find_paths(&graph);
+        assert_eq!(dfs.path_to(&2), Some(vec![2, 0]));
+        assert!(
+            dfs.path_to(&4) == Some(vec![4, 6, 0])
+                || dfs.path_to(&4) == Some(vec![4, 5, 0])
+                || dfs.path_to(&4) == Some(vec![4, 3, 5, 0])
+        );
+    }
 
-    // #[test]
-    // fn test_bfs() {
-    //     let mut graph = Graph::init(9);
-    //     graph.add_edge(0, 1);
-    //     graph.add_edge(0, 2);
-    //     graph.add_edge(0, 6);
-    //     graph.add_edge(0, 5);
-    //     graph.add_edge(6, 4);
-    //     graph.add_edge(4, 3);
-    //     graph.add_edge(5, 4);
-    //     graph.add_edge(5, 3);
+    #[test]
+    fn test_bfs() {
+        let mut graph = Graph::<u8>::init(9);
+        graph.add_edge(0, 1);
+        graph.add_edge(0, 2);
+        graph.add_edge(0, 6);
+        graph.add_edge(0, 5);
+        graph.add_edge(6, 4);
+        graph.add_edge(4, 3);
+        graph.add_edge(5, 4);
+        graph.add_edge(5, 3);
 
-    //     let mut bfs = BreadthFirstSearch::init(graph.nb_vertices, 0);
-    //     bfs.find_paths(&graph);
-    //     assert_eq!(bfs.path_to(2), Some(vec![2, 0]));
-    //     assert!(bfs.path_to(4) == Some(vec![4, 6, 0]) || bfs.path_to(4) == Some(vec![4, 5, 0]));
-    //     assert_eq!(bfs.path_to(5), Some(vec![5, 0]));
-    // }
+        let mut bfs = BreadthFirstSearch::init(graph.nb_vertices, 0);
+        bfs.find_paths(&graph);
+        assert_eq!(bfs.path_to(&2), Some(vec![2, 0]));
+        assert!(bfs.path_to(&4) == Some(vec![4, 6, 0]) || bfs.path_to(&4) == Some(vec![4, 5, 0]));
+        assert_eq!(bfs.path_to(&5), Some(vec![5, 0]));
+    }
 
-    // #[test]
-    // fn test_connected_components() {
-    //     let mut graph = Graph::init(13);
-    //     graph.add_edge(0, 1);
-    //     graph.add_edge(0, 2);
-    //     graph.add_edge(0, 6);
-    //     graph.add_edge(0, 5);
-    //     graph.add_edge(6, 4);
-    //     graph.add_edge(4, 3);
-    //     graph.add_edge(5, 4);
-    //     graph.add_edge(5, 3);
-    //     graph.add_edge(7, 8);
-    //     graph.add_edge(9, 10);
-    //     graph.add_edge(9, 11);
-    //     graph.add_edge(9, 12);
-    //     graph.add_edge(11, 12);
+    #[test]
+    fn test_connected_components() {
+        let mut graph = Graph::<u16>::init(13);
+        graph.add_edge(0, 1);
+        graph.add_edge(0, 2);
+        graph.add_edge(0, 6);
+        graph.add_edge(0, 5);
+        graph.add_edge(6, 4);
+        graph.add_edge(4, 3);
+        graph.add_edge(5, 4);
+        graph.add_edge(5, 3);
+        graph.add_edge(7, 8);
+        graph.add_edge(9, 10);
+        graph.add_edge(9, 11);
+        graph.add_edge(9, 12);
+        graph.add_edge(11, 12);
 
-    //     let mut cc = ConnectedComponent::init(graph.nb_vertices);
-    //     cc.find_cc(&graph);
-    //     assert_eq!(cc.count(), 3);
-    //     assert!(cc.connected(0, 3).unwrap());
-    //     assert!(!cc.connected(5, 9).unwrap());
-    // }
+        let mut connected_component = ConnectedComponent::init(graph.nb_vertices);
+        connected_component.find(&graph);
+        assert_eq!(connected_component.count(), 3);
+        assert!(connected_component
+            .connected(&0, &3)
+            .expect("Failed to get connection flag"));
+        assert!(!connected_component
+            .connected(&5, &9)
+            .expect("Failed to get connection flag"));
+    }
 }

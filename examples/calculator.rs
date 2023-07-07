@@ -1,20 +1,34 @@
-#[cfg(test)]
-mod unit_test;
-use crate::data_structure::ListStack;
+use algods::data_structure::ListStack;
 
 // Simulating a relatively simple calcutor
 // implemented with the Djikstra two-stack algorithm
 #[derive(Debug)]
-pub struct Calculator {
+pub struct Calculator<T> {
     ops: ListStack<String>,
-    vals: ListStack<usize>,
+    vals: ListStack<T>,
 }
-impl Default for Calculator {
+impl<
+        T: std::ops::Add<Output = T>
+            + std::ops::Mul<Output = T>
+            + std::ops::Div<Output = T>
+            + std::str::FromStr,
+    > Default for Calculator<T>
+where
+    <T as std::str::FromStr>::Err: std::fmt::Debug,
+{
     fn default() -> Self {
         Self::new()
     }
 }
-impl Calculator {
+impl<
+        T: std::ops::Add<Output = T>
+            + std::ops::Mul<Output = T>
+            + std::ops::Div<Output = T>
+            + std::str::FromStr,
+    > Calculator<T>
+where
+    <T as std::str::FromStr>::Err: std::fmt::Debug,
+{
     pub fn new() -> Self {
         Self {
             ops: ListStack::new(),
@@ -22,13 +36,11 @@ impl Calculator {
         }
     }
 
-    pub fn compute(&mut self, expression: String) -> usize {
+    pub fn compute(&mut self, expression: String) -> T {
         // operations, parentheses and operands should be separated
         // by white spaces, e.g.  ( ( 1 * ( 2 + 3 ) ) + ( 4 * ( 5 + 6 ) ) )
         for elt in expression.split_whitespace() {
             let c = elt.to_string();
-            // println!("{:?}", self.vals);
-            // println!("{:?}", self.ops);
 
             if c == "+" || c == "*" || c == ":" || c == "/" {
                 self.ops.push(c);
@@ -48,13 +60,18 @@ impl Calculator {
                 }
             } else if c == "(" {
             } else {
-                self.vals.push(c.parse::<usize>().unwrap());
+                self.vals.push(c.parse::<T>().unwrap());
             }
-            // println!("\n");
         }
 
         let res = self.vals.pop().expect("Failed poping result");
-        println!("{res}");
         res
     }
+}
+
+fn main() {
+    let mut e = Calculator::<u8>::new();
+    let exp = "( ( 1 * ( 2 + 3 ) ) + ( ( 4 * ( 5 + 6 ) ) + ( 10 : ( 4 + 1 ) ) ) )".to_string();
+    let res = e.compute(exp);
+    assert_eq!(res, 51);
 }

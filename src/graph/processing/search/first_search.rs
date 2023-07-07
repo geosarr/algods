@@ -1,24 +1,27 @@
-use crate::graph::VertexInfo;
-use std::collections::LinkedList;
+use crate::graph::{Index, VertexInfo};
+use std::collections::VecDeque;
 
 /// Function that runs the depth-first search algorithm
-pub fn dfs<G>(
+pub fn dfs<N, G>(
     graph: &G,
     marked: &mut [bool],
-    edge_to: &mut Vec<usize>,
-    origin: usize,
-    component: usize,
-    mut_edge_to: bool, // indicates whether or not not mutate edge_to
-    is_component: bool, // indicates whether or not to dfs is launched
+    edge_to: &mut Vec<N>,
+    origin: N,
+    component: N,
+    mut_edge_to: bool, // indicates whether or not to mutate edge_to
+    is_component: bool, // indicates whether or not dfs is launched
                        // for connected component-like algorithms
 ) where
-    G: VertexInfo,
+    N: Index,
+    G: VertexInfo<N>,
 {
     // finds all reachable vertices from origin and adds them to the connected component w
     // run time complexity O(sum of degrees of all reachable vertices from origin)
-    assert!(VertexInfo::nb_vertices(graph) >= std::cmp::max(origin, component));
+    let orig = origin.to_usize();
+    let comp = component.to_usize();
+    assert!(VertexInfo::nb_vertices(graph) >= std::cmp::max(orig, comp));
     // mark vertex w as visited
-    marked[origin] = true;
+    marked[orig] = true;
 
     // define how to mutate the edge_to list
     let source = if is_component { component } else { origin };
@@ -26,7 +29,8 @@ pub fn dfs<G>(
     let adjacent_vertices = graph.vertex_edges(&origin);
     if mut_edge_to {
         for u in adjacent_vertices {
-            if !marked[*u] {
+            let neighbor = u.to_usize();
+            if !marked[neighbor] {
                 dfs(
                     graph,
                     marked,
@@ -36,12 +40,13 @@ pub fn dfs<G>(
                     mut_edge_to,
                     is_component,
                 );
-                edge_to[*u] = source;
+                edge_to[neighbor] = source;
             }
         }
     } else {
         for u in adjacent_vertices {
-            if !marked[*u] {
+            let neighbor = u.to_usize();
+            if !marked[neighbor] {
                 dfs(
                     graph,
                     marked,
@@ -58,25 +63,28 @@ pub fn dfs<G>(
 }
 
 /// Function that runs the breadth-first search algorithm
-pub fn bfs<G>(graph: &G, marked: &mut [bool], edge_to: &mut [usize], w: usize)
+pub fn bfs<N, G>(graph: &G, marked: &mut [bool], edge_to: &mut [N], vertex_w: N)
 where
-    G: VertexInfo,
+    N: Index,
+    G: VertexInfo<N>,
 {
+    let w = vertex_w.to_usize();
     assert!(VertexInfo::nb_vertices(graph) >= w);
-    let mut queue = LinkedList::<usize>::new();
+    let mut queue = VecDeque::<N>::new();
     // mark the vertex w as visited and add it to the queue
-    queue.push_back(w);
+    queue.push_back(vertex_w);
     marked[w] = true;
 
-    while let Some(x) = queue.pop_front() {
+    while let Some(node) = queue.pop_front() {
         // remove the first vertex in the queue
         // add to the queue all unmarked vertices adjacent to v and mark them
-        let adj_x = graph.vertex_edges(&x);
-        for u in adj_x {
-            if !marked[*u] {
-                queue.push_back(*u);
-                marked[*u] = true;
-                edge_to[*u] = x;
+        let adj_node = graph.vertex_edges(&node);
+        for vertex_v in adj_node {
+            let v = vertex_v.to_usize();
+            if !marked[v] {
+                queue.push_back(*vertex_v);
+                marked[v] = true;
+                edge_to[v] = node;
             }
         }
     }

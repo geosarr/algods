@@ -65,6 +65,27 @@ impl<N: Index> Graph<N> {
         graph.nb_vertices = nb_vertices;
         graph
     }
+    /// Creates a new graph from a `Vec` of edges.
+    /// ```
+    /// use algods::graph::Graph;
+    /// let mut graph = Graph::<u8>::from_vec(vec![(0, 0), (0, 1), (1, 0), (0, 2), (3, 1), (2, 3)]);
+    /// assert_eq!(graph.nb_vertices(), 4);
+    /// assert_eq!(graph.nb_edges(), 5);
+    /// ```
+    pub fn from_vec(edges: Vec<(N, N)>) -> Self {
+        let mut graph = Self::new();
+        let nb_edges = edges.len();
+        for edge in edges.iter().take(nb_edges) {
+            let vertex_v = edge.0;
+            let vertex_w = edge.1;
+            let max_vertex = max(vertex_v, vertex_w).to_usize();
+            if max_vertex >= graph.nb_vertices {
+                graph.add_vertices(max_vertex - graph.nb_vertices + 1);
+            }
+            graph.add_edge(vertex_v, vertex_w);
+        }
+        graph
+    }
     /// Returns the number of edges in the graph.
     /// ```
     /// use algods::graph::Graph;
@@ -148,7 +169,7 @@ impl<N: Index> Graph<N> {
     pub fn degree(&self, vertex: &N) -> usize {
         let v = vertex.to_usize();
         assert!(v < self.nb_vertices);
-        self.data[v].len() - usize::from(self.data[v].contains(&vertex))
+        self.data[v].len() - usize::from(self.data[v].contains(vertex))
     }
     /// Gives the floor average number of degrees in the graph.
     /// # Panic
@@ -189,7 +210,7 @@ impl<N: Index> Graph<N> {
         self.data
             .iter()
             .enumerate()
-            .map(|(v, e)| usize::from(e.contains(&N::to_index(v))))
+            .map(|(v, e)| usize::from(e.contains(&N::to_vertex(v))))
             .sum()
     }
 }
