@@ -1,15 +1,14 @@
 mod directed_graph;
-
 /// This module collects some graph processing algorithms
 pub mod processing;
 mod undirected_graph;
 
-pub use directed_graph::{DiGraph, EdgeWeightedDiGraph, WeightedDiEdge}; //, , FlowEdge, FlowNetwork};
+pub use directed_graph::{DiGraph, EdgeWeightedDiGraph, FlowEdge, FlowNetwork, WeightedDiEdge};
 pub use undirected_graph::Graph;
 
 use std::cmp::Ord;
 use std::hash::Hash;
-use std::ops::{Add, AddAssign};
+use std::ops::{Add, AddAssign, Sub};
 
 /// This trait gives some basic information on vertices
 pub trait VertexInfo<N>
@@ -28,7 +27,7 @@ pub trait Convert: std::convert::From<bool> + Copy {
 pub trait Index: Base + Convert {
     fn maximum() -> Self;
 }
-pub trait Weight: Hash + Copy + Ord + Add<Output = Self> {
+pub trait Weight: Hash + Copy + Ord + Add<Output = Self> + Sub<Output = Self> {
     fn zero() -> Self;
     fn maximum() -> Self;
 }
