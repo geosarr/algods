@@ -3,9 +3,10 @@ mod shortest_path;
 #[cfg(test)]
 mod unit_test;
 use crate::graph::Index;
-use crate::graph::VertexInfo; //EdgeWeightDiGraph, VertexInfo, Weight};
+use crate::graph::VertexInfo;
+use crate::graph::{EdgeWeightedDiGraph, Weight};
 pub use first_search::{bfs, dfs};
-// pub use shortest_path::{bellman_ford, dijkstra, shortest_path_ewdag};
+pub use shortest_path::{bellman_ford, dijkstra, shortest_path_ewdag};
 use std::marker::PhantomData;
 
 pub struct DepthFirstSearch<N, G> {
@@ -110,76 +111,79 @@ impl<N: Index, G: VertexInfo<N>> BreadthFirstSearch<N, G> {
     }
 }
 
-// pub enum ShortestPathAlgo {
-//     Dijkstra,
-//     SpDag,
-//     BellmanFord,
-// }
-// impl Default for ShortestPathAlgo {
-//     fn default() -> Self {
-//         Self::Dijkstra
-//     }
-// }
-// pub struct ShortestPath<T> {
-//     // the source vertex from where the shortest
-//     // paths are computed
-//     source: usize,
-//     // the algorithm used to compute the shortest paths
-//     algo: ShortestPathAlgo,
-//     // stores the length of the shortest path from
-//     // the source to an edge
-//     dist_to: Vec<T>,
-//     // stores the vertex that is the closest
-//     // to an edge in the shortest path
-//     edge_to: Vec<usize>,
-// }
-// impl<T: Weight + Clone + std::hash::Hash> ShortestPath<T> {
-//     pub fn init(from: usize, algorithm: ShortestPathAlgo, nb_vertices: usize) -> Self {
-//         Self {
-//             source: from,
-//             algo: algorithm,
-//             dist_to: vec![Weight::max(); nb_vertices],
-//             edge_to: vec![usize::MAX; nb_vertices],
-//         }
-//     }
-// }
+pub enum ShortestPathAlgo {
+    Dijkstra,
+    SpDag,
+    BellmanFord,
+}
+impl Default for ShortestPathAlgo {
+    fn default() -> Self {
+        Self::Dijkstra
+    }
+}
+pub struct ShortestPath<N, W> {
+    // the source vertex from where the shortest
+    // paths are computed
+    source: N,
+    // the algorithm used to compute the shortest paths
+    algo: ShortestPathAlgo,
+    // stores the length of the shortest path from
+    // the source to an edge
+    dist_to: Vec<W>,
+    // stores the vertex that is the closest
+    // to an edge in the shortest path
+    edge_to: Vec<N>,
+}
+impl<N: Index, W: Weight> ShortestPath<N, W> {
+    pub fn init(from: N, algorithm: ShortestPathAlgo, nb_vertices: usize) -> Self {
+        Self {
+            source: from,
+            algo: algorithm,
+            dist_to: vec![W::maximum(); nb_vertices],
+            edge_to: vec![N::maximum(); nb_vertices],
+        }
+    }
+}
 
-// impl<T> ShortestPath<T> {
-//     pub fn dist_to(&self, v: usize) -> &T {
-//         &self.dist_to[v]
-//     }
-//     pub fn edge_to(&self, v: usize) -> usize {
-//         self.edge_to[v]
-//     }
-// }
-// impl<T: Eq + Weight> ShortestPath<T> {
-//     pub fn path_to(&self, v: usize) -> Option<Vec<usize>> {
-//         if self.dist_to[v] == Weight::max() {
-//             return None;
-//         }
-//         let mut path = Vec::new();
-//         let mut origin = v;
-//         while origin != self.source {
-//             path.push(origin);
-//             origin = self.edge_to[origin];
-//         }
-//         path.push(self.source);
-//         Some(path)
-//     }
-// }
+impl<N: Index, W: Weight> ShortestPath<N, W> {
+    pub fn dist_to(&self, vertex: &N) -> &W {
+        let v = vertex.to_usize();
+        &self.dist_to[v]
+    }
+    pub fn edge_to(&self, vertex: &N) -> &N {
+        let v = vertex.to_usize();
+        &self.edge_to[v]
+    }
+}
+impl<N: Index, W: Weight> ShortestPath<N, W> {
+    pub fn path_to(&self, vertex: &N) -> Option<Vec<N>> {
+        let v = vertex.to_usize();
+        if self.dist_to[v] == W::maximum() {
+            return None;
+        }
+        let mut path = Vec::new();
+        let mut origin = *vertex;
+        while origin != self.source {
+            path.push(origin);
+            origin = self.edge_to[origin.to_usize()];
+        }
+        path.push(self.source);
+        Some(path)
+    }
+}
 
-// impl<T: Ord + Weight + std::ops::Add<Output = T> + std::hash::Hash> ShortestPath<T> {
-//     pub fn find_paths(&mut self, graph: &EdgeWeightDiGraph<T>) {
-//         match self.algo {
-//             ShortestPathAlgo::Dijkstra => {
-//                 dijkstra(graph, self.source, &mut self.edge_to, &mut self.dist_to);
-//             }
-//             ShortestPathAlgo::SpDag => {
-//                 shortest_path_ewdag(graph, self.source, &mut self.edge_to, &mut self.dist_to);
-//             }
-//             ShortestPathAlgo::BellmanFord => {
-//                 bellman_ford(graph, self.source, &mut self.edge_to, &mut self.dist_to);
-//             }
-//         }
-//     }
-// }
+impl<N: Index, W: Weight + Ord> ShortestPath<N, W> {
+    pub fn find_paths(&mut self, graph: &EdgeWeightedDiGraph<N, W>) {
+        match self.algo {
+            ShortestPathAlgo::Dijkstra => {
+                dijkstra(graph, self.source, &mut self.edge_to, &mut self.dist_to);
+            }
+            ShortestPathAlgo::SpDag => {
+                shortest_path_ewdag(graph, self.source, &mut self.edge_to, &mut self.dist_to);
+            }
+            ShortestPathAlgo::BellmanFord => {
+                bellman_ford(graph, self.source, &mut self.edge_to, &mut self.dist_to);
+            }
+        }
+    }
+}

@@ -36,11 +36,10 @@ impl<T: Ord + std::ops::Add<Output = T> + std::ops::Sub<Output = T> + Copy> Thre
 }
 
 fn main() {
-    use algods::utils::{gen_vec_rand_int, RandKind};
     use std::thread;
     use std::thread::JoinHandle;
 
-    let vec = gen_vec_rand_int(20, RandKind::Range);
+    let vec = vec![-10, 16, -115, 18, 29, -16, 37, 92, -1001, 9];
     let n = vec.len();
     let mut threesum = ThreeSum::<isize>::init(0, vec);
     let mut handles: Vec<JoinHandle<isize>> = Vec::new();

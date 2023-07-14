@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use super::super::DiGraph; //, EdgeWeightDiGraph};
+    use super::super::{DiGraph, EdgeWeightedDiGraph};
     use crate::graph::processing::{
         BreadthFirstSearch, DepthFirstSearch, StrongConnectedComponent, TopologicalSort,
     };
@@ -23,23 +23,23 @@ mod tests {
         assert_eq!(graph.self_loop_number(), 1);
     }
 
-    //     #[test]
-    //     fn test_edge_weighted_directed_graph() {
-    //         let n: usize = 10;
-    //         let mut graph = EdgeWeightDiGraph::<i8>::init(n);
-    //         assert_eq!(graph.nb_vertices(), n);
-    //         graph.add_edge(0, 5, 1);
-    //         graph.add_edge(4, 8, 1);
-    //         graph.add_edge(7, 4, 1);
-    //         assert_eq!(graph.nb_edges(), 3);
-    //         assert_eq!(graph.out_degree(&2), 0);
-    //         assert_eq!(graph.out_degree(&4), 1);
-    //         assert_eq!(graph.in_degree(&0), 0);
-    //         assert_eq!(graph.in_degree(&4), 1);
-    //         assert_eq!(graph.self_loop_number(), 0);
-    //         graph.add_edge(0, 0, 1);
-    //         assert_eq!(graph.self_loop_number(), 1);
-    //     }
+    #[test]
+    fn test_edge_weighted_directed_graph() {
+        let n: usize = 10;
+        let mut graph = EdgeWeightedDiGraph::<u8, i16>::init(n);
+        assert_eq!(graph.nb_vertices(), n);
+        graph.add_edge(0, 5, 1);
+        graph.add_edge(4, 8, 1);
+        graph.add_edge(7, 4, 1);
+        assert_eq!(graph.nb_edges(), 3);
+        assert_eq!(graph.out_degree(&2), 0);
+        assert_eq!(graph.out_degree(&4), 1);
+        assert_eq!(graph.in_degree(&0), 0);
+        assert_eq!(graph.in_degree(&4), 1);
+        assert_eq!(graph.self_loop_number(), 0);
+        graph.add_edge(0, 0, 1);
+        assert_eq!(graph.self_loop_number(), 1);
+    }
 
     #[test]
     #[should_panic]

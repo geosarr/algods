@@ -1,11 +1,10 @@
 #[cfg(test)]
 mod tests {
     use super::super::{MergeSort, MergeSortAlgorithm};
-    use crate::utils::{gen_vec_rand_int, RandKind};
 
     #[test]
     fn test_merge_sort() {
-        let mut v = gen_vec_rand_int(10000, RandKind::Full);
+        let mut v = vec![-10, 16, -115, 18, 29, -16, 37, 92, -1001, 9];
         let mbup = MergeSort {
             vec: v.clone(),
             algo: MergeSortAlgorithm::BottomUp,

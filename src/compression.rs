@@ -15,6 +15,11 @@ where
 {
     bits: BitVec<T, O>,
 }
+impl<T: bitvec::store::BitStore, O: bitvec::order::BitOrder> Default for RunLength<T, O> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl<T, O> RunLength<T, O>
 where
     T: bitvec::store::BitStore,
@@ -42,6 +47,15 @@ where
     /// ```
     pub fn len(&self) -> usize {
         self.bits.len()
+    }
+    /// Tells whether or not the structure is empty
+    /// ```
+    /// use algods::compression::*;
+    /// let rl = RunLength::<u8, Msb0>::new();
+    /// assert!(rl.is_empty());
+    /// ```
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
     }
     /// Creates a bits holding structure from a `BitVec` structure
     /// # Examples

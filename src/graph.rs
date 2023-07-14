@@ -4,12 +4,12 @@ mod directed_graph;
 pub mod processing;
 mod undirected_graph;
 
-pub use directed_graph::{DiGraph, EdgeWeightedDiGraph}; //, , FlowEdge, FlowNetwork};
+pub use directed_graph::{DiGraph, EdgeWeightedDiGraph, WeightedDiEdge}; //, , FlowEdge, FlowNetwork};
 pub use undirected_graph::Graph;
 
 use std::cmp::Ord;
 use std::hash::Hash;
-use std::ops::{Add, AddAssign, Sub};
+use std::ops::{Add, AddAssign};
 
 /// This trait gives some basic information on vertices
 pub trait VertexInfo<N>
@@ -19,26 +19,22 @@ where
     fn vertex_edges(&self, vertex: &N) -> Vec<&N>;
     fn nb_vertices(&self) -> usize;
 }
-pub trait Max {
-    fn maximum() -> Self;
-}
-pub trait Base: Ord + Hash + Sub<Output = Self> + Add<Output = Self> + Copy {}
-pub trait Convert: std::convert::From<bool> + Copy + AddAssign {
+///
+pub trait Base: Ord + Hash + Copy + AddAssign {}
+pub trait Convert: std::convert::From<bool> + Copy {
     fn to_usize(self) -> usize;
     fn to_vertex(nb: usize) -> Self;
 }
-pub trait Index: Base + Convert + Max {}
-// Greatly inspired by :
-// https://github.com/s1ck/graph/blob/main/crates/builder/src/index.rs
-pub trait Weight: Hash + Clone + Copy + Eq + PartialEq + std::fmt::Display {}
+pub trait Index: Base + Convert {
+    fn maximum() -> Self;
+}
+pub trait Weight: Hash + Copy + Ord + Add<Output = Self> {
+    fn zero() -> Self;
+    fn maximum() -> Self;
+}
 macro_rules! impl_index {
     ($TYPE:ty) => {
         impl Base for $TYPE {}
-        impl Max for $TYPE {
-            fn maximum() -> Self {
-                <$TYPE>::MAX
-            }
-        }
         impl Convert for $TYPE {
             fn to_usize(self) -> usize {
                 self as usize
@@ -47,12 +43,23 @@ macro_rules! impl_index {
                 nb as Self
             }
         }
-        impl Index for $TYPE {}
+        impl Index for $TYPE {
+            fn maximum() -> Self {
+                <$TYPE>::MAX
+            }
+        }
     };
 }
 macro_rules! impl_weight {
     ($TYPE:ty) => {
-        impl Weight for $TYPE {}
+        impl Weight for $TYPE {
+            fn zero() -> Self {
+                0 as $TYPE
+            }
+            fn maximum() -> Self {
+                <$TYPE>::MAX
+            }
+        }
     };
 }
 impl_index!(u8);
