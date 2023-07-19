@@ -173,8 +173,8 @@ where
     /// Copies a file bitwise.
     /// # Examples
     /// ```
-    /// // use algods::compression::*;
-    /// // let file_path: &str = "path/to/file" ;
+    /// use algods::compression::*;
+    /// let file_path: &str = "path/to/file" ;
     /// // let run_length = RunLength::<u8, Lsb0>::from_file(file_path);
     /// // let (comp, init_nb_bits) = run_length.compress();
     /// // let original_bits = run_length.expand(comp, init_nb_bits);

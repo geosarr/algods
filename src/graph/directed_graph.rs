@@ -20,7 +20,7 @@ use super::Index;
 /// graph.add_edge(0, 0);
 /// assert_eq!(graph.self_loop_number(), 1);
 /// ```
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub struct DiGraph<N>
 where
     N: Index,
@@ -339,11 +339,20 @@ impl<N: Index> VertexInfo<N> for DiGraph<N> {
     }
 }
 
+/// Weighted directed edge.
+/// ```
+/// use algods::graph::WeightedDiEdge;
+/// let source = 2;
+/// let target = 0;
+/// let weight = 10;
+/// let edge = WeightedDiEdge::<u8, i16>::init(source, target, weight);
+/// println!("{:?}", edge);
+/// ```
 #[derive(Eq, Hash, PartialEq, Copy, Clone, Debug)]
 pub struct WeightedDiEdge<N, W>
 where
     N: Index,
-    W: Weight,
+    //     W: Weight,
 {
     from: N, // not necessarily useful but keeps the idea of an edge
     to: N,
@@ -398,11 +407,24 @@ impl<N: Index, W: Weight> WeightedDiEdge<N, W> {
     }
 }
 
+/// Directed Weighted Graph based on adjacency-list
+/// ```
+/// use algods::graph::EdgeWeightedDiGraph;
+/// let mut graph = EdgeWeightedDiGraph::<u8, isize>::init(3);
+/// graph.add_edge(0, 1, 1);
+/// graph.add_edge(1, 2, 0);
+/// assert_eq!(graph.nb_vertices(), 3);
+/// assert_eq!(graph.nb_edges(), 2);
+/// graph.add_vertex();
+/// assert_eq!(graph.nb_vertices(), 4);
+/// graph.add_edge(0, 0, 2);
+/// assert_eq!(graph.self_loop_number(), 1);
+/// ```
 #[derive(Clone, Debug)]
 pub struct EdgeWeightedDiGraph<N, W>
 where
     N: Index,
-    W: Weight,
+    //     W: Weight,
 {
     out_edges: Vec<HashSet<WeightedDiEdge<N, W>>>,
     nb_edges: usize,
@@ -410,12 +432,12 @@ where
     in_degree: Vec<usize>,
 }
 
-impl<N: Index, W: Weight> Default for EdgeWeightedDiGraph<N, W> {
+impl<N: Index, W> Default for EdgeWeightedDiGraph<N, W> {
     fn default() -> Self {
         Self::new()
     }
 }
-impl<N: Index, W: Weight> EdgeWeightedDiGraph<N, W> {
+impl<N: Index, W> EdgeWeightedDiGraph<N, W> {
     /// Creates an empty graph.
     /// ```
     /// use algods::graph::EdgeWeightedDiGraph;
@@ -431,6 +453,47 @@ impl<N: Index, W: Weight> EdgeWeightedDiGraph<N, W> {
             in_degree: Vec::new(),
         }
     }
+    /// Returns the number of edges in the graph.
+    /// ```
+    /// use algods::graph::EdgeWeightedDiGraph;
+    /// let mut graph = EdgeWeightedDiGraph::<u8, u8>::new();
+    /// graph.add_vertices(3);
+    /// graph.add_edge(0, 2, 0);
+    /// graph.add_edge(1, 2, 0);
+    /// graph.add_edge(2, 0, 0);
+    /// assert_eq!(graph.nb_edges(), 3);
+    /// ```
+    pub fn nb_edges(&self) -> usize {
+        // run time complexity O(1)
+        self.nb_edges
+    }
+    /// Returns the number of vertices in the graph.
+    /// ```
+    /// use algods::graph::EdgeWeightedDiGraph;
+    /// let mut graph = EdgeWeightedDiGraph::<usize, usize>::init(4);
+    /// graph.add_edge(0, 2, 8);
+    /// graph.add_edge(2, 2, 7);
+    /// assert_eq!(graph.nb_vertices(), 4);
+    /// ```
+    pub fn nb_vertices(&self) -> usize {
+        // run time complexity O(1)
+        self.nb_vertices
+    }
+    /// Adds a vertex to the graph.
+    /// ```
+    /// use algods::graph::EdgeWeightedDiGraph;
+    /// let mut graph = EdgeWeightedDiGraph::<usize, isize>::new();
+    /// graph.add_vertex();
+    /// graph.add_vertex();
+    /// graph.add_vertex();
+    /// assert_eq!(graph.nb_vertices(), 3);
+    /// ```
+    pub fn add_vertex(&mut self) {
+        self.out_edges.push(HashSet::new());
+        self.nb_vertices += 1;
+    }
+}
+impl<N: Index, W: Weight> EdgeWeightedDiGraph<N, W> {
     /// Creates a graph with a given number of vertices and without edges.
     /// ```
     /// use algods::graph::EdgeWeightedDiGraph;
@@ -475,32 +538,7 @@ impl<N: Index, W: Weight> EdgeWeightedDiGraph<N, W> {
         }
         graph
     }
-    /// Returns the number of edges in the graph.
-    /// ```
-    /// use algods::graph::EdgeWeightedDiGraph;
-    /// let mut graph = EdgeWeightedDiGraph::<u8, u8>::new();
-    /// graph.add_vertices(3);
-    /// graph.add_edge(0, 2, 0);
-    /// graph.add_edge(1, 2, 0);
-    /// graph.add_edge(2, 0, 0);
-    /// assert_eq!(graph.nb_edges(), 3);
-    /// ```
-    pub fn nb_edges(&self) -> usize {
-        // run time complexity O(1)
-        self.nb_edges
-    }
-    /// Returns the number of vertices in the graph.
-    /// ```
-    /// use algods::graph::EdgeWeightedDiGraph;
-    /// let mut graph = EdgeWeightedDiGraph::<usize, usize>::init(4);
-    /// graph.add_edge(0, 2, 8);
-    /// graph.add_edge(2, 2, 7);
-    /// assert_eq!(graph.nb_vertices(), 4);
-    /// ```
-    pub fn nb_vertices(&self) -> usize {
-        // run time complexity O(1)
-        self.nb_vertices
-    }
+
     /// Adds a new edge to the graph
     /// ```
     /// use algods::graph::EdgeWeightedDiGraph;
@@ -528,6 +566,7 @@ impl<N: Index, W: Weight> EdgeWeightedDiGraph<N, W> {
         self.in_degree[t] += ind_t_is_new;
         self.nb_edges += ind_t_is_new;
     }
+
     /// Adds some vertices to the graph.
     /// ```
     /// use algods::graph::EdgeWeightedDiGraph;
@@ -548,19 +587,7 @@ impl<N: Index, W: Weight> EdgeWeightedDiGraph<N, W> {
         self.in_degree.resize(new_size, 0);
         self.nb_vertices += nb;
     }
-    /// Adds a vertex to the graph.
-    /// ```
-    /// use algods::graph::EdgeWeightedDiGraph;
-    /// let mut graph = EdgeWeightedDiGraph::<usize, isize>::new();
-    /// graph.add_vertex();
-    /// graph.add_vertex();
-    /// graph.add_vertex();
-    /// assert_eq!(graph.nb_vertices(), 3);
-    /// ```
-    pub fn add_vertex(&mut self) {
-        self.out_edges.push(HashSet::new());
-        self.nb_vertices += 1;
-    }
+
     /// Gives a reference to the vertices a given vertex points to.
     /// ```
     /// use algods::graph::{EdgeWeightedDiGraph, WeightedDiEdge};
@@ -700,6 +727,16 @@ impl<N: Index, W: Weight> VertexInfo<N> for EdgeWeightedDiGraph<N, W> {
     }
 }
 
+/// Flow directed edge with capacity.
+/// ```
+/// use algods::graph::FlowEdge;
+/// let source = 0;
+/// let target = 1;
+/// let flow = 10;
+/// let capacity = 12;
+/// let edge = FlowEdge::<u8, i16>::init(source, target, flow, capacity);
+/// println!("{:?}", edge);
+/// ```
 #[derive(Debug, Eq, Hash, PartialEq, Copy, Clone)]
 pub struct FlowEdge<N, W>
 where
@@ -810,6 +847,19 @@ impl<N: Index, W: Weight> FlowEdge<N, W> {
     }
 }
 
+/// Directed Flow Graph with capactiy based on adjacency-list.
+/// ```
+/// use algods::graph::FlowNetwork;
+/// let mut graph = FlowNetwork::<u8, isize>::init(3);
+/// graph.add_edge(0, 1, 1, 3);
+/// graph.add_edge(1, 2, 0, 5);
+/// assert_eq!(graph.nb_vertices(), 3);
+/// assert_eq!(graph.nb_edges(), 2);
+/// graph.add_vertex();
+/// assert_eq!(graph.nb_vertices(), 4);
+/// graph.add_edge(0, 0, 2, 2);
+/// assert_eq!(graph.self_loop_number(), 1);
+/// ```
 pub struct FlowNetwork<N, W>
 where
     N: Index,

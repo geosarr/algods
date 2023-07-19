@@ -1,9 +1,8 @@
-use crate::graph::Index;
 use crate::graph::{processing::TopologicalSort, EdgeWeightedDiGraph, Weight};
+use crate::graph::{Convert, Index};
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
-// use std::process::Output;
-
+use std::ops::Add;
 #[derive(Eq, PartialEq)]
 struct CurrentNode<N, W> {
     vertex: N,
@@ -32,7 +31,7 @@ impl<N: Ord, W: Ord> PartialOrd for CurrentNode<N, W> {
 /// Function that computes the shortest paths from a source
 /// for edge weighted directed acyclic graph with only
 /// positive weights using Dijkstra's algorithm
-pub fn dijkstra<N: Index, W: Weight>(
+pub fn dijkstra<N: Index, W: Weight + Ord>(
     graph: &EdgeWeightedDiGraph<N, W>,
     source: N,
     edge_to: &mut Vec<N>,
@@ -72,7 +71,7 @@ pub fn dijkstra<N: Index, W: Weight>(
     }
 }
 
-fn relax<N: Index, W: Weight>(
+fn relax<N: Convert, W: Copy + Add<Output = W>>(
     dist_to: &mut [W],
     edge_to: &mut [N],
     origin: N,
@@ -98,7 +97,7 @@ pub fn shortest_path_ewdag<N: Index, W: Weight>(
 
     let mut topo = TopologicalSort::init(nb);
     topo.depth_first_order(graph);
-    dist_to[source.to_usize()] = Weight::zero();
+    dist_to[source.to_usize()] = W::zero();
 
     // tells whether or not the source
     // vertex is processed in the topological
@@ -130,7 +129,7 @@ pub fn bellman_ford<N: Index, W: Weight>(
     edge_to: &mut [N],
     dist_to: &mut [W],
 ) {
-    dist_to[source.to_usize()] = Weight::zero();
+    dist_to[source.to_usize()] = W::zero();
     let nb = graph.nb_edges();
     for v in 0..nb {
         let vertex = N::to_vertex(v);

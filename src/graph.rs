@@ -18,16 +18,19 @@ where
     fn vertex_edges(&self, vertex: &N) -> Vec<&N>;
     fn nb_vertices(&self) -> usize;
 }
-///
+/// Basic trait for nodes/vertex
 pub trait Base: Ord + Hash + Copy + AddAssign {}
+/// Implements index conversion
 pub trait Convert: std::convert::From<bool> + Copy {
     fn to_usize(self) -> usize;
     fn to_vertex(nb: usize) -> Self;
 }
+/// Implements index manipulation traits
 pub trait Index: Base + Convert {
     fn maximum() -> Self;
 }
-pub trait Weight: Hash + Copy + Ord + Add<Output = Self> + Sub<Output = Self> {
+/// Implements graph weight manipulation.
+pub trait Weight: Hash + Copy + PartialOrd + Eq + Add<Output = Self> + Sub<Output = Self> {
     fn zero() -> Self;
     fn maximum() -> Self;
 }

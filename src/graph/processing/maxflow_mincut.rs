@@ -21,7 +21,11 @@ impl<W: Weight> FordFulkerson<W> {
     pub fn new() -> Self {
         Self { max_flow: None }
     }
-
+    pub fn max_flow(&self) -> Option<W> {
+        self.max_flow
+    }
+}
+impl<W: Weight + Ord> FordFulkerson<W> {
     fn has_augmenting_path<N: Index>(
         &self,
         network: &mut FlowNetwork<N, W>,
@@ -53,9 +57,7 @@ impl<W: Weight> FordFulkerson<W> {
         }
         false
     }
-    pub fn max_flow(&self) -> Option<W> {
-        self.max_flow
-    }
+
     pub fn find_flows<N: Index>(
         &mut self,
         network: &mut FlowNetwork<N, W>,
@@ -63,7 +65,7 @@ impl<W: Weight> FordFulkerson<W> {
         destination: &N,
     ) {
         let mut edge_to = vec![None; network.nb_vertices()];
-        let mut max_flow = Weight::zero();
+        let mut max_flow = W::zero();
 
         while self.has_augmenting_path(network, source, destination, &mut edge_to) {
             let mut path_flow = W::maximum();
