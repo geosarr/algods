@@ -4,7 +4,7 @@ mod shortest_path;
 mod unit_test;
 use crate::graph::Index;
 use crate::graph::VertexInfo;
-use crate::graph::{EdgeWeightedDiGraph, Weight};
+use crate::graph::{HashWeightedDiGraph, Weight};
 pub use first_search::{bfs, dfs};
 pub use shortest_path::{bellman_ford, dijkstra, shortest_path_ewdag};
 use std::marker::PhantomData;
@@ -173,7 +173,7 @@ impl<N: Index, W: Weight> ShortestPath<N, W> {
 }
 
 impl<N: Index, W: Weight + Ord> ShortestPath<N, W> {
-    pub fn find_paths(&mut self, graph: &EdgeWeightedDiGraph<N, W>) {
+    pub fn find_paths(&mut self, graph: &HashWeightedDiGraph<N, W>) {
         match self.algo {
             ShortestPathAlgo::Dijkstra => {
                 dijkstra(graph, self.source, &mut self.edge_to, &mut self.dist_to);

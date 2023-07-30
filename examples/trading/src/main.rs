@@ -2,7 +2,7 @@ use algods::graph::*;
 fn main() {
     // Example from thealgorists.com
     // 0:USD, 1:EUR, 2:GBP, 3:CHF, 4:CAD
-    let graph = EdgeWeightedDiGraph::<u8, f64>::from_vec(vec![
+    let graph = VecWeightedDiGraph::<u8, f64>::from_vec(vec![
         (0, 1, 0.741),
         (0, 2, 0.657),
         (0, 3, 1.061),
@@ -24,4 +24,5 @@ fn main() {
         (4, 2, 0.650),
         (4, 3, 1.049),
     ]);
+    
 }

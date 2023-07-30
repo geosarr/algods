@@ -1,11 +1,11 @@
 #[cfg(test)]
 mod tests {
     use super::super::{ShortestPath, ShortestPathAlgo};
-    use crate::graph::EdgeWeightedDiGraph;
+    use crate::graph::HashWeightedDiGraph;
 
     #[test]
     fn test_dijkstra() {
-        let mut graph = EdgeWeightedDiGraph::<u32, u8>::init(9);
+        let mut graph = HashWeightedDiGraph::<u32, u8>::init(9);
         graph.add_edge(0, 1, 1);
         graph.add_edge(0, 2, 1);
         graph.add_edge(0, 6, 2);
@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn test_shortest_path_ewdag() {
-        let mut graph = EdgeWeightedDiGraph::<usize, u16>::init(8);
+        let mut graph = HashWeightedDiGraph::<usize, u16>::init(8);
         graph.add_edge(0, 1, 5);
         graph.add_edge(0, 4, 9);
         graph.add_edge(0, 7, 8);

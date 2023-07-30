@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use super::super::{DiGraph, EdgeWeightedDiGraph};
+    use super::super::{DiGraph, HashWeightedDiGraph};
     use crate::graph::processing::{
         BreadthFirstSearch, DepthFirstSearch, StrongConnectedComponent, TopologicalSort,
     };
@@ -26,7 +26,7 @@ mod tests {
     #[test]
     fn test_edge_weighted_directed_graph() {
         let n: usize = 10;
-        let mut graph = EdgeWeightedDiGraph::<u8, i16>::init(n);
+        let mut graph = HashWeightedDiGraph::<u8, i16>::init(n);
         assert_eq!(graph.nb_vertices(), n);
         graph.add_edge(0, 5, 1);
         graph.add_edge(4, 8, 1);

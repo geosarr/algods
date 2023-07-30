@@ -1,5 +1,5 @@
-use crate::graph::{processing::TopologicalSort, EdgeWeightedDiGraph, Weight};
-use crate::graph::{Convert, Index};
+use crate::graph::{processing::TopologicalSort, HashWeightedDiGraph, Weight};
+use crate::graph::{Convert, EdgeInfo, Index, Zero};
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::ops::Add;
@@ -32,7 +32,7 @@ impl<N: Ord, W: Ord> PartialOrd for CurrentNode<N, W> {
 /// for edge weighted directed acyclic graph with only
 /// positive weights using Dijkstra's algorithm
 pub fn dijkstra<N: Index, W: Weight + Ord>(
-    graph: &EdgeWeightedDiGraph<N, W>,
+    graph: &HashWeightedDiGraph<N, W>,
     source: N,
     edge_to: &mut Vec<N>,
     dist_to: &mut Vec<W>,
@@ -42,7 +42,7 @@ pub fn dijkstra<N: Index, W: Weight + Ord>(
     assert_eq!(nb, edge_to.len());
 
     let mut priority_queue = BinaryHeap::new();
-    dist_to[source.to_usize()] = Weight::zero();
+    dist_to[source.to_usize()] = W::zero();
     priority_queue.push(CurrentNode {
         vertex: source,
         distance: W::zero(),
@@ -86,7 +86,7 @@ fn relax<N: Convert, W: Copy + Add<Output = W>>(
 /// for edge weighted directed acyclic graphs with possibly
 /// negative and/or positive weights
 pub fn shortest_path_ewdag<N: Index, W: Weight>(
-    graph: &EdgeWeightedDiGraph<N, W>,
+    graph: &HashWeightedDiGraph<N, W>,
     source: N,
     edge_to: &mut Vec<N>,
     dist_to: &mut Vec<W>,
@@ -123,20 +123,20 @@ pub fn shortest_path_ewdag<N: Index, W: Weight>(
 /// Function that computes the shortest paths from a source
 /// for edge weighted directed graph with negative weights
 /// and without any negative cycle
-pub fn bellman_ford<N: Index, W: Weight>(
-    graph: &EdgeWeightedDiGraph<N, W>,
-    source: N,
-    edge_to: &mut [N],
-    dist_to: &mut [W],
-) {
+pub fn bellman_ford<N, W, G>(graph: &G, source: N, edge_to: &mut [N], dist_to: &mut [W])
+where
+    N: Index,
+    W: Copy + Add<Output = W> + Zero + PartialOrd,
+    G: EdgeInfo<N, W>,
+{
     dist_to[source.to_usize()] = W::zero();
     let nb = graph.nb_edges();
     for v in 0..nb {
         let vertex = N::to_vertex(v);
         let adj_v = graph.out_edges(&vertex);
         for edge in adj_v {
-            let u = *(edge.to());
-            let w = *(edge.weight());
+            let u = *(edge.0);
+            let w = *(edge.1);
             if dist_to[u.to_usize()] > dist_to[v] + w {
                 relax(dist_to, edge_to, vertex, u, w);
             }

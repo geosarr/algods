@@ -3,7 +3,9 @@ mod directed_graph;
 pub mod processing;
 mod undirected_graph;
 
-pub use directed_graph::{DiGraph, EdgeWeightedDiGraph, FlowEdge, FlowNetwork, WeightedDiEdge};
+pub use directed_graph::{
+    DiGraph, FlowEdge, FlowNetwork, HashWeightedDiGraph, VecWeightedDiGraph, WeightedDiEdge,
+};
 pub use undirected_graph::Graph;
 
 use std::cmp::Ord;
@@ -18,6 +20,11 @@ where
     fn vertex_edges(&self, vertex: &N) -> Vec<&N>;
     fn nb_vertices(&self) -> usize;
 }
+
+pub trait EdgeInfo<N, W> {
+    fn out_edges(&self, vertex: &N) -> Vec<(&N, &W)>;
+    fn nb_edges(&self) -> usize;
+}
 /// Basic trait for nodes/vertex
 pub trait Base: Ord + Hash + Copy + AddAssign {}
 /// Implements index conversion
@@ -29,9 +36,14 @@ pub trait Convert: std::convert::From<bool> + Copy {
 pub trait Index: Base + Convert {
     fn maximum() -> Self;
 }
-/// Implements graph weight manipulation.
-pub trait Weight: Hash + Copy + PartialOrd + Eq + Add<Output = Self> + Sub<Output = Self> {
+/// Implements the zero of a type
+pub trait Zero {
     fn zero() -> Self;
+}
+/// Implements graph weight manipulation.
+pub trait Weight:
+    Zero + Hash + Copy + PartialOrd + Eq + Add<Output = Self> + Sub<Output = Self>
+{
     fn maximum() -> Self;
 }
 macro_rules! impl_index {
@@ -54,10 +66,12 @@ macro_rules! impl_index {
 }
 macro_rules! impl_weight {
     ($TYPE:ty) => {
-        impl Weight for $TYPE {
+        impl Zero for $TYPE {
             fn zero() -> Self {
                 0 as $TYPE
             }
+        }
+        impl Weight for $TYPE {
             fn maximum() -> Self {
                 <$TYPE>::MAX
             }
