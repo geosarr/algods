@@ -1,4 +1,4 @@
-use crate::graph::processing::dfs;
+use crate::graph::processing::search::dfs;
 use crate::graph::{Index, VertexInfo};
 use std::iter::Rev;
 use std::marker::PhantomData;

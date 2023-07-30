@@ -1,7 +1,7 @@
 use crate::graph::{processing::TopologicalSort, Weight};
 use crate::graph::{Convert, EdgeInfo, Index, VertexInfo, Zero};
 use std::cmp::Ordering;
-use std::collections::BinaryHeap;
+use std::collections::{BinaryHeap, VecDeque};
 use std::ops::Add;
 #[derive(Eq, PartialEq)]
 struct CurrentNode<N, W> {
@@ -143,6 +143,42 @@ where
             let w = *(edge.1);
             if dist_to[u.to_usize()] > dist_to[v] + w {
                 relax(dist_to, edge_to, vertex, u, w);
+            }
+        }
+    }
+}
+
+/// Function that computes the shortest path from a source
+/// for edge weigthed directed graphs with at least one negative
+/// weighted edge
+pub fn shortest_path_faster_algorithm<N, W, G>(
+    graph: &G,
+    source: N,
+    edge_to: &mut [N],
+    dist_to: &mut [W],
+) where
+    N: Index,
+    W: Copy + Add<Output = W> + Zero + PartialOrd,
+    G: EdgeInfo<N, W>,
+{
+    dist_to[source.to_usize()] = W::zero();
+    let mut deque = VecDeque::new();
+    deque.push_back(source);
+    while let Some(vertex) = deque.pop_front() {
+        let v = vertex.to_usize();
+        let adj = graph.out_edges(&vertex);
+        for (neighbor, weight) in adj {
+            if dist_to[v] + *weight < dist_to[neighbor.to_usize()] {
+                relax(dist_to, edge_to, vertex, *neighbor, *weight);
+                if !deque.contains(neighbor) {
+                    // Small-Label-First procedure
+                    // from (https://en.wikipedia.org/wiki/Shortest_path_faster_algorithm#Optimization_techniques)
+                    let front = deque.get(0).expect("Failed to get the front element.");
+                    if dist_to[neighbor.to_usize()] < dist_to[front.to_usize()] {
+                        deque.push_front(*neighbor);
+                    }
+                    deque.push_back(*neighbor);
+                }
             }
         }
     }

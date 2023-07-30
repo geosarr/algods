@@ -8,7 +8,9 @@ use crate::graph::VertexInfo;
 use crate::graph::Weight;
 use crate::graph::Zero;
 pub use first_search::{bfs, dfs};
-pub use shortest_path::{bellman_ford, dijkstra, shortest_path_ewdag};
+pub use shortest_path::{
+    bellman_ford, dijkstra, shortest_path_ewdag, shortest_path_faster_algorithm,
+};
 use std::marker::PhantomData;
 use std::ops::Add;
 
@@ -182,9 +184,18 @@ impl<N, W> ShortestPath<N, W> {
     pub fn bellman_ford<G>(&mut self, graph: &G)
     where
         N: Index,
-        W: Weight,
+        W: Copy + Add<Output = W> + Zero + PartialOrd,
         G: EdgeInfo<N, W>,
     {
         bellman_ford(graph, self.source, &mut self.edge_to, &mut self.dist_to);
+    }
+
+    pub fn spfa<G>(&mut self, graph: &G)
+    where
+        N: Index,
+        W: Copy + Add<Output = W> + Zero + PartialOrd,
+        G: EdgeInfo<N, W>,
+    {
+        shortest_path_faster_algorithm(graph, self.source, &mut self.edge_to, &mut self.dist_to);
     }
 }
