@@ -2,12 +2,15 @@ mod first_search;
 mod shortest_path;
 #[cfg(test)]
 mod unit_test;
+use crate::graph::EdgeInfo;
 use crate::graph::Index;
 use crate::graph::VertexInfo;
-use crate::graph::{HashWeightedDiGraph, Weight};
+use crate::graph::Weight;
+use crate::graph::Zero;
 pub use first_search::{bfs, dfs};
 pub use shortest_path::{bellman_ford, dijkstra, shortest_path_ewdag};
 use std::marker::PhantomData;
+use std::ops::Add;
 
 pub struct DepthFirstSearch<N, G> {
     // Indicates whether or not a vertex w in the graph is visited
@@ -111,22 +114,10 @@ impl<N: Index, G: VertexInfo<N>> BreadthFirstSearch<N, G> {
     }
 }
 
-pub enum ShortestPathAlgo {
-    Dijkstra,
-    SpDag,
-    BellmanFord,
-}
-impl Default for ShortestPathAlgo {
-    fn default() -> Self {
-        Self::Dijkstra
-    }
-}
 pub struct ShortestPath<N, W> {
     // the source vertex from where the shortest
     // paths are computed
     source: N,
-    // the algorithm used to compute the shortest paths
-    algo: ShortestPathAlgo,
     // stores the length of the shortest path from
     // the source to an edge
     dist_to: Vec<W>,
@@ -135,10 +126,9 @@ pub struct ShortestPath<N, W> {
     edge_to: Vec<N>,
 }
 impl<N: Index, W: Weight> ShortestPath<N, W> {
-    pub fn init(from: N, algorithm: ShortestPathAlgo, nb_vertices: usize) -> Self {
+    pub fn init(from: N, nb_vertices: usize) -> Self {
         Self {
             source: from,
-            algo: algorithm,
             dist_to: vec![W::maximum(); nb_vertices],
             edge_to: vec![N::maximum(); nb_vertices],
         }
@@ -172,18 +162,29 @@ impl<N: Index, W: Weight> ShortestPath<N, W> {
     }
 }
 
-impl<N: Index, W: Weight + Ord> ShortestPath<N, W> {
-    pub fn find_paths(&mut self, graph: &HashWeightedDiGraph<N, W>) {
-        match self.algo {
-            ShortestPathAlgo::Dijkstra => {
-                dijkstra(graph, self.source, &mut self.edge_to, &mut self.dist_to);
-            }
-            ShortestPathAlgo::SpDag => {
-                shortest_path_ewdag(graph, self.source, &mut self.edge_to, &mut self.dist_to);
-            }
-            ShortestPathAlgo::BellmanFord => {
-                bellman_ford(graph, self.source, &mut self.edge_to, &mut self.dist_to);
-            }
-        }
+impl<N, W> ShortestPath<N, W> {
+    pub fn dijkstra<G>(&mut self, graph: &G)
+    where
+        N: Index,
+        W: Copy + Zero + Ord + Add<Output = W>,
+        G: EdgeInfo<N, W> + VertexInfo<N>,
+    {
+        dijkstra(graph, self.source, &mut self.edge_to, &mut self.dist_to);
+    }
+    pub fn ewdag<G>(&mut self, graph: &G)
+    where
+        N: Index,
+        W: Weight,
+        G: VertexInfo<N> + EdgeInfo<N, W>,
+    {
+        shortest_path_ewdag(graph, self.source, &mut self.edge_to, &mut self.dist_to);
+    }
+    pub fn bellman_ford<G>(&mut self, graph: &G)
+    where
+        N: Index,
+        W: Weight,
+        G: EdgeInfo<N, W>,
+    {
+        bellman_ford(graph, self.source, &mut self.edge_to, &mut self.dist_to);
     }
 }

@@ -1,5 +1,5 @@
-use crate::graph::{processing::TopologicalSort, HashWeightedDiGraph, Weight};
-use crate::graph::{Convert, EdgeInfo, Index, Zero};
+use crate::graph::{processing::TopologicalSort, Weight};
+use crate::graph::{Convert, EdgeInfo, Index, VertexInfo, Zero};
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::ops::Add;
@@ -31,12 +31,14 @@ impl<N: Ord, W: Ord> PartialOrd for CurrentNode<N, W> {
 /// Function that computes the shortest paths from a source
 /// for edge weighted directed acyclic graph with only
 /// positive weights using Dijkstra's algorithm
-pub fn dijkstra<N: Index, W: Weight + Ord>(
-    graph: &HashWeightedDiGraph<N, W>,
+pub fn dijkstra<N: Index, W: Copy + Zero + Ord + Add<Output = W>, G>(
+    graph: &G,
     source: N,
     edge_to: &mut Vec<N>,
     dist_to: &mut Vec<W>,
-) {
+) where
+    G: VertexInfo<N> + EdgeInfo<N, W>,
+{
     let nb = graph.nb_vertices();
     assert_eq!(edge_to.len(), dist_to.len());
     assert_eq!(nb, edge_to.len());
@@ -51,8 +53,8 @@ pub fn dijkstra<N: Index, W: Weight + Ord>(
     while let Some(CurrentNode { vertex, distance }) = priority_queue.pop() {
         let neighbors = graph.out_edges(&vertex);
         for edge in neighbors {
-            let neighbor = *(edge.to());
-            let dist = *(edge.weight());
+            let neighbor = *(edge.0);
+            let dist = *(edge.1);
             let node = CurrentNode {
                 vertex: neighbor,
                 distance: distance + dist,
@@ -85,12 +87,14 @@ fn relax<N: Convert, W: Copy + Add<Output = W>>(
 /// Function that computes the shortest paths from a source
 /// for edge weighted directed acyclic graphs with possibly
 /// negative and/or positive weights
-pub fn shortest_path_ewdag<N: Index, W: Weight>(
-    graph: &HashWeightedDiGraph<N, W>,
+pub fn shortest_path_ewdag<N: Index, W: Weight, G>(
+    graph: &G,
     source: N,
     edge_to: &mut Vec<N>,
     dist_to: &mut Vec<W>,
-) {
+) where
+    G: VertexInfo<N> + EdgeInfo<N, W>,
+{
     let nb = graph.nb_vertices();
     assert_eq!(edge_to.len(), dist_to.len());
     assert_eq!(nb, edge_to.len());
@@ -110,8 +114,8 @@ pub fn shortest_path_ewdag<N: Index, W: Weight>(
         if flag_source {
             let neighbors = graph.out_edges(vertex);
             for edge in neighbors {
-                let neighbor = *(edge.to());
-                let dist = *(edge.weight());
+                let neighbor = *(edge.0);
+                let dist = *(edge.1);
                 if dist_to[neighbor.to_usize()] > dist_to[vertex.to_usize()] + dist {
                     relax(dist_to, edge_to, *vertex, neighbor, dist);
                 }
