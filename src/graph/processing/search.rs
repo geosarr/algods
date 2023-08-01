@@ -2,19 +2,14 @@ mod first_search;
 mod shortest_path;
 #[cfg(test)]
 mod unit_test;
-use crate::graph::EdgeInfo;
-use crate::graph::Index;
-use crate::graph::VertexInfo;
-use crate::graph::Weight;
-use crate::graph::Zero;
+use crate::graph::{BaseWeight, EdgeInfo, Index, VertexInfo, Zero};
 pub use first_search::{bfs, dfs};
 pub use shortest_path::{
     bellman_ford, dijkstra, shortest_path_ewdag, shortest_path_faster_algorithm,
 };
-use std::marker::PhantomData;
 use std::ops::Add;
 
-pub struct DepthFirstSearch<N, G> {
+pub struct DepthFirstSearch<N> {
     // Indicates whether or not a vertex w in the graph is visited
     marked: Vec<bool>,
     // Indicates what is the previous vertex leading to the current vertex
@@ -22,10 +17,8 @@ pub struct DepthFirstSearch<N, G> {
     edge_to: Vec<N>,
     // vertex for which paths are computed
     v: N,
-    // type of the graph
-    graph_type: PhantomData<G>,
 }
-impl<N: Index, G: VertexInfo<N>> DepthFirstSearch<N, G> {
+impl<N: Index> DepthFirstSearch<N> {
     pub fn init(nb_vertices: usize, origin: N) -> Self {
         Self {
             marked: vec![false; nb_vertices],
@@ -33,11 +26,13 @@ impl<N: Index, G: VertexInfo<N>> DepthFirstSearch<N, G> {
                 .map(|v| N::to_vertex(v))
                 .collect::<Vec<N>>(),
             v: origin,
-            graph_type: PhantomData,
         }
     }
 
-    pub fn find_paths(&mut self, graph: &G) {
+    pub fn find_paths<G>(&mut self, graph: &G)
+    where
+        G: VertexInfo<N>,
+    {
         // finds all paths from self.v in self.graph
         dfs(
             graph,
@@ -69,7 +64,7 @@ impl<N: Index, G: VertexInfo<N>> DepthFirstSearch<N, G> {
     }
 }
 
-pub struct BreadthFirstSearch<N, G> {
+pub struct BreadthFirstSearch<N> {
     // Indicates wether or not a vertex w in the graph is visited
     marked: Vec<bool>,
     // Indicates what is the previous vertex leading to the current vertex
@@ -77,10 +72,8 @@ pub struct BreadthFirstSearch<N, G> {
     edge_to: Vec<N>,
     // Vertex for which paths are computed
     v: N,
-    // type of the graph
-    graph_type: PhantomData<G>,
 }
-impl<N: Index, G: VertexInfo<N>> BreadthFirstSearch<N, G> {
+impl<N: Index> BreadthFirstSearch<N> {
     pub fn init(nb_vertices: usize, origin: N) -> Self {
         Self {
             marked: vec![false; nb_vertices],
@@ -88,11 +81,13 @@ impl<N: Index, G: VertexInfo<N>> BreadthFirstSearch<N, G> {
                 .map(|v| N::to_vertex(v))
                 .collect::<Vec<N>>(),
             v: origin,
-            graph_type: PhantomData,
         }
     }
 
-    pub fn find_paths(&mut self, graph: &G) {
+    pub fn find_paths<G>(&mut self, graph: &G)
+    where
+        G: VertexInfo<N>,
+    {
         // finds all reachable vertices from w
         bfs(graph, &mut self.marked, &mut self.edge_to, self.v);
     }
@@ -127,7 +122,7 @@ pub struct ShortestPath<N, W> {
     // to an edge in the shortest path
     edge_to: Vec<N>,
 }
-impl<N: Index, W: Weight> ShortestPath<N, W> {
+impl<N: Index, W: BaseWeight> ShortestPath<N, W> {
     pub fn init(from: N, nb_vertices: usize) -> Self {
         Self {
             source: from,
@@ -137,7 +132,7 @@ impl<N: Index, W: Weight> ShortestPath<N, W> {
     }
 }
 
-impl<N: Index, W: Weight> ShortestPath<N, W> {
+impl<N: Index, W> ShortestPath<N, W> {
     pub fn dist_to(&self, vertex: &N) -> &W {
         let v = vertex.to_usize();
         &self.dist_to[v]
@@ -147,7 +142,7 @@ impl<N: Index, W: Weight> ShortestPath<N, W> {
         &self.edge_to[v]
     }
 }
-impl<N: Index, W: Weight> ShortestPath<N, W> {
+impl<N: Index, W: BaseWeight> ShortestPath<N, W> {
     pub fn path_to(&self, vertex: &N) -> Option<Vec<N>> {
         let v = vertex.to_usize();
         if self.dist_to[v] == W::maximum() {
@@ -176,7 +171,7 @@ impl<N, W> ShortestPath<N, W> {
     pub fn ewdag<G>(&mut self, graph: &G)
     where
         N: Index,
-        W: Weight,
+        W: BaseWeight,
         G: VertexInfo<N> + EdgeInfo<N, W>,
     {
         shortest_path_ewdag(graph, self.source, &mut self.edge_to, &mut self.dist_to);

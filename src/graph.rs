@@ -25,8 +25,12 @@ pub trait EdgeInfo<N, W> {
     fn out_edges(&self, vertex: &N) -> Vec<(&N, &W)>;
     fn nb_edges(&self) -> usize;
 }
+/// Implements the zero of a type
+pub trait Zero {
+    fn zero() -> Self;
+}
 /// Basic trait for nodes/vertex
-pub trait Base: Ord + Hash + Copy + AddAssign {}
+pub trait Base: Ord + Hash + Copy + AddAssign + std::fmt::Debug {}
 /// Implements index conversion
 pub trait Convert: std::convert::From<bool> + Copy {
     fn to_usize(self) -> usize;
@@ -36,16 +40,11 @@ pub trait Convert: std::convert::From<bool> + Copy {
 pub trait Index: Base + Convert {
     fn maximum() -> Self;
 }
-/// Implements the zero of a type
-pub trait Zero {
-    fn zero() -> Self;
-}
-/// Implements graph weight manipulation.
-pub trait Weight:
-    Zero + Hash + Copy + PartialOrd + Eq + Add<Output = Self> + Sub<Output = Self>
-{
+pub trait BaseWeight: Copy + Add<Output = Self> + PartialOrd + Zero + std::fmt::Debug {
     fn maximum() -> Self;
 }
+/// Implements graph weight manipulation.
+pub trait Weight: BaseWeight + Hash + Eq + Sub<Output = Self> {}
 macro_rules! impl_index {
     ($TYPE:ty) => {
         impl Base for $TYPE {}
@@ -64,6 +63,20 @@ macro_rules! impl_index {
         }
     };
 }
+macro_rules! impl_base_weight {
+    ($TYPE:ty) => {
+        impl Zero for $TYPE {
+            fn zero() -> Self {
+                0 as $TYPE
+            }
+        }
+        impl BaseWeight for $TYPE {
+            fn maximum() -> Self {
+                <$TYPE>::MAX
+            }
+        }
+    };
+}
 macro_rules! impl_weight {
     ($TYPE:ty) => {
         impl Zero for $TYPE {
@@ -71,11 +84,12 @@ macro_rules! impl_weight {
                 0 as $TYPE
             }
         }
-        impl Weight for $TYPE {
+        impl BaseWeight for $TYPE {
             fn maximum() -> Self {
                 <$TYPE>::MAX
             }
         }
+        impl Weight for $TYPE {}
     };
 }
 impl_index!(u8);
@@ -96,3 +110,5 @@ impl_weight!(i32);
 impl_weight!(i64);
 impl_weight!(i128);
 impl_weight!(isize);
+impl_base_weight!(f32);
+impl_base_weight!(f64);

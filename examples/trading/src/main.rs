@@ -24,5 +24,10 @@ fn main() {
         (4, 2, 0.650),
         (4, 3, 1.049),
     ]);
-    
+    let mut shortest_path = processing::ShortestPath::init(0, graph.nb_vertices());
+    shortest_path.spfa(&graph);
+    println!("{:?}", shortest_path.dist_to(&0));
+    println!("{:?}", shortest_path.dist_to(&1));
+    println!("{:?}", shortest_path.dist_to(&2));
+    println!("{:?}", shortest_path.dist_to(&3));
 }

@@ -1,5 +1,5 @@
-use crate::graph::{processing::TopologicalSort, Weight};
-use crate::graph::{Convert, EdgeInfo, Index, VertexInfo, Zero};
+use crate::graph::processing::TopologicalSort;
+use crate::graph::{BaseWeight, Convert, EdgeInfo, Index, VertexInfo, Zero};
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, VecDeque};
 use std::ops::Add;
@@ -87,7 +87,7 @@ fn relax<N: Convert, W: Copy + Add<Output = W>>(
 /// Function that computes the shortest paths from a source
 /// for edge weighted directed acyclic graphs with possibly
 /// negative and/or positive weights
-pub fn shortest_path_ewdag<N: Index, W: Weight, G>(
+pub fn shortest_path_ewdag<N: Index, W: BaseWeight, G>(
     graph: &G,
     source: N,
     edge_to: &mut Vec<N>,
@@ -173,9 +173,11 @@ pub fn shortest_path_faster_algorithm<N, W, G>(
                 if !deque.contains(neighbor) {
                     // Small-Label-First procedure
                     // from (https://en.wikipedia.org/wiki/Shortest_path_faster_algorithm#Optimization_techniques)
-                    let front = deque.get(0).expect("Failed to get the front element.");
-                    if dist_to[neighbor.to_usize()] < dist_to[front.to_usize()] {
-                        deque.push_front(*neighbor);
+                    if !deque.is_empty() {
+                        let front = deque.get(0).expect("Failed to get the front element.");
+                        if dist_to[neighbor.to_usize()] < dist_to[front.to_usize()] {
+                            deque.push_front(*neighbor);
+                        }
                     }
                     deque.push_back(*neighbor);
                 }
