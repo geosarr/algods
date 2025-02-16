@@ -42,7 +42,7 @@ impl Boolean {
             vec![]
         }
     }
-    fn union_many(list_posts: Vec<&Vec<usize>>) -> Vec<usize> {
+    fn union_many(list_posts: Vec<&[usize]>) -> Vec<usize> {
         let mut rest = &list_posts[1..];
         let mut result = list_posts[0];
         let mut temp = Vec::new();
@@ -54,11 +54,11 @@ impl Boolean {
         }
         return result.to_vec();
     }
-    fn intersect_many(list_posts: Vec<&Vec<usize>>) -> Vec<usize> {
+    fn intersect_many(list_posts: Vec<&[usize]>) -> Vec<usize> {
         // TODO: add sorting posting by incresing freq
         let mut rest = &list_posts[1..];
         let mut result = list_posts[0];
-        let mut temp = Vec::with_capacity(result.len());
+        let mut temp = Vec::new();
         while !rest.is_empty() && !result.is_empty() {
             let posting = rest[0];
             temp = Self::intersect(result, posting);
@@ -68,7 +68,7 @@ impl Boolean {
         return result.to_vec();
     }
 
-    fn union(post1: &Vec<usize>, post2: &Vec<usize>) -> Vec<usize> {
+    fn union(post1: &[usize], post2: &[usize]) -> Vec<usize> {
         let mut p1 = 0;
         let mut p2 = 0;
         let n1 = post1.len();
@@ -98,7 +98,7 @@ impl Boolean {
         return result;
     }
 
-    fn intersect(post1: &Vec<usize>, post2: &Vec<usize>) -> Vec<usize> {
+    fn intersect(post1: &[usize], post2: &[usize]) -> Vec<usize> {
         let mut p1 = 0;
         let mut p2 = 0;
         let n1 = post1.len();

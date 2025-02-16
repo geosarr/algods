@@ -42,7 +42,7 @@ impl Document {
     pub fn id(&self) -> usize {
         self.id
     }
-    pub fn content(&self) -> &String {
-        &self.content
+    pub fn content(&self) -> &str {
+        self.content.as_str()
     }
 }

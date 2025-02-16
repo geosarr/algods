@@ -37,7 +37,7 @@ impl InvertedIndex {
         &self.raw_freq
     }
 
-    pub fn posting(&self, tok: &str) -> &Vec<usize> {
+    pub fn posting(&self, tok: &str) -> &[usize] {
         &self.index[tok]
     }
 
