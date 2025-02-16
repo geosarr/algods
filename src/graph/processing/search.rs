@@ -153,6 +153,7 @@ impl<N: Index, W: BaseWeight> ShortestPath<N, W> {
         while origin != self.source {
             path.push(origin);
             origin = self.edge_to[origin.to_usize()];
+            println!("{:?}", path);
         }
         path.push(self.source);
         Some(path)
@@ -180,7 +181,7 @@ impl<N, W> ShortestPath<N, W> {
     where
         N: Index,
         W: Copy + Add<Output = W> + Zero + PartialOrd,
-        G: EdgeInfo<N, W>,
+        G: EdgeInfo<N, W> + VertexInfo<N>,
     {
         bellman_ford(graph, self.source, &mut self.edge_to, &mut self.dist_to);
     }

@@ -405,6 +405,9 @@ impl<N: Index, W> WeightedDiEdge<N, W> {
     pub fn weight(&self) -> &W {
         &self.weight
     }
+    pub fn weight_mut(&mut self) -> &mut W {
+        &mut self.weight
+    }
 }
 
 /// Directed Weighted Graph based on `Hashset` adjacency-list
@@ -1252,6 +1255,18 @@ impl<N: Index, W> VecWeightedDiGraph<N, W> {
     pub fn add_vertex(&mut self) {
         self.out_edges.push(Vec::new());
         self.nb_vertices += 1;
+    }
+    pub fn apply_mut<F>(&mut self, func: F)
+    where
+        W: Copy,
+        F: FnOnce(W) -> W + Copy,
+    {
+        for v in 0..self.nb_vertices {
+            let adj = &mut self.out_edges[v];
+            for edge in adj.iter_mut() {
+                *(edge.weight_mut()) = func(*(edge.weight()));
+            }
+        }
     }
 }
 impl<N: Index, W: Copy + PartialEq> VecWeightedDiGraph<N, W> {
