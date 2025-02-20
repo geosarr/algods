@@ -2,7 +2,7 @@
 // #[cfg(test)]
 // mod unit_test;
 use crate::collection::{Collection, Document};
-use crate::indice::InvertedIndex;
+use crate::indice::{InvertedIndex, PositionalIndex};
 use flate2::read::MultiGzDecoder;
 use pbr::ProgressBar;
 use quick_xml::events::Event;
@@ -23,9 +23,9 @@ impl Loader {
     pub fn from(path: String) -> Self {
         Self { path }
     }
-    pub fn load(&self, max_num_doc: usize) -> (InvertedIndex, Collection) {
+    pub fn load(&self, max_num_doc: usize) -> (PositionalIndex, Collection) {
         let file = File::open(self.path.as_str()).unwrap();
-        let mut index = InvertedIndex::new();
+        let mut index = PositionalIndex::new();
         let mut collection = Collection::new();
         let mut flag_abs = false;
         let mut doc_id = 0;
@@ -66,14 +66,23 @@ impl Loader {
             }
         }
         buf.clear();
-        // println!("{:#?}", collection.document(&5));
-        // println!("Total abstracts {}", collection.len());
-        // println!("{:#?}", index.index());
-        // println!("{:#?}", index.raw_freq());
-        // println!("{:#?}", collection.document(&9));
-        // println!("{:#?}", collection.document(&8));
-        // println!("{:#?}", collection.document(&5));
-        // println!("{:#?}", collection.document(&4));
+        println!("{:#?}", collection.document(&5));
+        println!("Total abstracts {}", collection.len());
+        println!("{:#?}", collection.document(&9));
+        println!("{:#?}", collection.document(&8));
+        println!("{:#?}", collection.document(&5));
+        println!("{:#?}", collection.document(&4));
         return (index, collection);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_loader() {
+        let loader = Loader::from("s".to_string());
+        loader.load(10);
     }
 }
