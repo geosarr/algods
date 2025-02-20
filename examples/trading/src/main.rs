@@ -2,7 +2,7 @@ use algods::graph::*;
 fn main() {
     // Example from thealgorists.com
     // 0:USD, 1:EUR, 2:GBP, 3:CHF, 4:CAD
-    let graph = VecWeightedDiGraph::<u8, f64>::from_vec(vec![
+    let mut graph = VecWeightedDiGraph::<u8, f64>::from_vec(vec![
         (0, 1, 0.741),
         (0, 2, 0.657),
         (0, 3, 1.061),
@@ -24,10 +24,22 @@ fn main() {
         (4, 2, 0.650),
         (4, 3, 1.049),
     ]);
-    let mut shortest_path = processing::ShortestPath::init(0, graph.nb_vertices());
+    fn neg_log(value: f64) -> f64 {
+        -value.ln()
+    }
+    graph.apply_mut(neg_log);
+    println!("ok");
+    let mut shortest_path = processing::ShortestPath::init(4, graph.nb_vertices());
+    println!("ok");
     shortest_path.spfa(&graph);
-    println!("{:?}", shortest_path.dist_to(&0));
-    println!("{:?}", shortest_path.dist_to(&1));
-    println!("{:?}", shortest_path.dist_to(&2));
-    println!("{:?}", shortest_path.dist_to(&3));
+    println!("ok");
+    println!("{:?}", shortest_path.path_to(&0));
+    println!("{:?}", shortest_path.path_to(&4));
+    // println!("{:?}", shortest_path.path_to(&2));
+    // println!("{:?}", shortest_path.path_to(&3));
+
+    // println!("{:?}", shortest_path.dist_to(&0));
+    // println!("{:?}", shortest_path.dist_to(&1));
+    // println!("{:?}", shortest_path.dist_to(&2));
+    // println!("{:?}", shortest_path.dist_to(&3));
 }

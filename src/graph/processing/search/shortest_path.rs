@@ -188,10 +188,10 @@ pub fn bellman_ford<N, W, G>(graph: &G, source: N, edge_to: &mut [N], dist_to: &
 where
     N: Index,
     W: Copy + Add<Output = W> + Zero + PartialOrd,
-    G: EdgeInfo<N, W>,
+    G: EdgeInfo<N, W> + VertexInfo<N>,
 {
     dist_to[source.to_usize()] = W::zero();
-    let nb = graph.nb_edges();
+    let nb = graph.nb_vertices();
     for v in 0..nb {
         let vertex = N::to_vertex(v);
         let adj_v = graph.out_edges(&vertex);
