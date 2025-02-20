@@ -20,7 +20,7 @@ impl Loader {
             path: String::new(),
         }
     }
-    pub fn init(path: String) -> Self {
+    pub fn from(path: String) -> Self {
         Self { path }
     }
     pub fn load(&self, max_num_doc: usize) -> (InvertedIndex, Collection) {
@@ -50,7 +50,7 @@ impl Loader {
                 Ok(Event::Text(e)) => {
                     let text = e.unescape().unwrap().into_owned();
                     if text.len() >= 10 && flag_abs {
-                        let doc = Document::init(doc_id + 1, text);
+                        let doc = Document::from(doc_id + 1, text);
                         index.index_document(doc, &mut collection);
                         flag_abs = false;
                         doc_id += 1;

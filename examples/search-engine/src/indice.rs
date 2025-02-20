@@ -22,7 +22,7 @@ impl InvertedIndex {
         }
     }
 
-    pub fn init(include_char_index: bool, ngram: usize) -> Self {
+    pub fn from(include_char_index: bool, ngram: usize) -> Self {
         let mut inv_index = Self::new();
         inv_index.include_char_index = include_char_index;
         inv_index.ngram = ngram;

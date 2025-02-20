@@ -170,7 +170,7 @@ impl<N, W> ShortestPath<N, W> {
     }
     pub fn ewdag<G>(&mut self, graph: &G)
     where
-        N: Index,
+        N: Index + std::fmt::Display,
         W: BaseWeight,
         G: VertexInfo<N> + EdgeInfo<N, W>,
     {

@@ -33,7 +33,7 @@ pub struct Document {
 }
 
 impl Document {
-    pub fn init(doc_id: usize, content: String) -> Self {
+    pub fn from(doc_id: usize, content: String) -> Self {
         Self {
             id: doc_id,
             content,

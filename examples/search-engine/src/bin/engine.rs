@@ -17,7 +17,7 @@ struct Cli {
 
 fn main() {
     let cli = Cli::parse();
-    let loader = Loader::init(cli.file_abs_path);
+    let loader = Loader::from(cli.file_abs_path);
     let (index, collection) = loader.load(cli.max_num_abs);
     let model = Boolean::new();
     loop {

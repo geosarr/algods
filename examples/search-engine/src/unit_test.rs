@@ -5,7 +5,7 @@ mod tests {
 
     #[test]
     fn test_character_ngram() {
-        let words = "rustyboy".to_owned();
+        let words = "rustyboy";
         let char_gram = character_ngram(&words, 4);
         let expected_result = HashSet::from(["rust", "usty", "styb", "tybo", "yboy"]);
         let expected_result = expected_result

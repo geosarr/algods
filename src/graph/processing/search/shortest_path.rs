@@ -87,7 +87,7 @@ fn relax<N: Convert, W: Copy + Add<Output = W>>(
 /// Function that computes the shortest paths from a source
 /// for edge weighted directed acyclic graphs with possibly
 /// negative and/or positive weights
-pub fn shortest_path_ewdag<N: Index, W: BaseWeight, G>(
+pub fn shortest_path_ewdag<N: Index + std::fmt::Display, W: BaseWeight, G>(
     graph: &G,
     source: N,
     edge_to: &mut Vec<N>,
@@ -108,6 +108,7 @@ pub fn shortest_path_ewdag<N: Index, W: BaseWeight, G>(
     // order
     let mut flag_source = false;
     for vertex in topo.order() {
+        // println!("Topo {vertex}");
         if *vertex == source {
             flag_source = true;
         }
@@ -121,9 +122,65 @@ pub fn shortest_path_ewdag<N: Index, W: BaseWeight, G>(
                 }
             }
         }
+        // println!("vertex = {vertex}, {:?}", dist_to);
     }
 }
+#[cfg(test)]
+mod tests {
+    use crate::graph::{self, processing::ShortestPath, Graph, VecWeightedDiGraph};
 
+    use super::*;
+
+    #[test]
+    fn test_shortest_path() {
+        // let mut graph = VecWeightedDiGraph::from_vec(vec![
+        //     (0usize, 1, 10),
+        //     (0, 2, 10),
+        //     (1, 2, 15),
+        //     (1, 3, 15),
+        //     (2, 3, 20),
+        // ]);
+        // // println!("{:?}", graph);
+        // let mut topo = TopologicalSort::init(graph.nb_vertices());
+        // topo.depth_first_order(&graph);
+        // println!("{:?}", topo.reverse_postorder());
+        // println!("{:?}", reverse_postorder);
+        let mut graph = VecWeightedDiGraph::from_vec(vec![
+            (0usize, 1, 1),
+            (0, 2, 1),
+            (1, 2, 100),
+            (1, 3, 100),
+            (2, 3, 1),
+            (2, 4, 1),
+            (3, 4, 1),
+            (3, 5, 1),
+            (4, 5, 1),
+            (4, 6, 1),
+            (5, 6, 100),
+            (5, 7, 100),
+            (6, 7, 1),
+            (6, 8, 1),
+            (7, 8, 1),
+            (7, 9, 1),
+            (8, 9, 100),
+            (8, 10, 100),
+            (9, 10, 1),
+        ]);
+        // let (mut edge_to, mut dist_to) = (vec![usize::MAX; 4], vec![usize::MAX; 4]);
+        // shortest_path_ewdag(&graph, 0, &mut edge_to, &mut dist_to);
+        let mut short: ShortestPath<usize, usize> = ShortestPath::init(0usize, graph.nb_vertices());
+        // short.spfa(&graph);
+        let dest = graph.nb_vertices() - 1;
+        // println!("\nSOURCE = 0");
+        // println!("edge_to: {:?}\n", short.path_to(&dest));
+        // println!("dist_to: {:?}", short.dist_to(&dest));
+        // let mut short = ShortestPath::init(1usize, graph.nb_vertices());
+        short.ewdag(&graph);
+        // println!("\nSOURCE = 1");
+        println!("edge_to: {:?}\n", short.path_to(&dest));
+        println!("dist_to: {:?}", short.dist_to(&dest));
+    }
+}
 /// Function that computes the shortest paths from a source
 /// for edge weighted directed graph with negative weights
 /// and without any negative cycle
