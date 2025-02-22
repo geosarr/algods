@@ -1,8 +1,5 @@
-// mod indice;
-// #[cfg(test)]
-// mod unit_test;
 use crate::collection::{Collection, Document};
-use crate::indice::{InvertedIndex, PositionalIndex};
+use crate::index::InvertedIndex;
 use flate2::read::MultiGzDecoder;
 use pbr::ProgressBar;
 use quick_xml::events::Event;
@@ -11,25 +8,22 @@ use std::fs::File;
 use std::io::BufReader;
 
 pub struct Loader {
-    path: String,
+    file: File,
 }
 
 impl Loader {
-    pub fn new() -> Self {
-        Self {
-            path: String::new(),
+    pub fn from(path: String) -> std::io::Result<Self> {
+        match File::open(path.as_str()) {
+            Ok(file) => Ok(Self { file }),
+            Err(error) => Err(error),
         }
     }
-    pub fn from(path: String) -> Self {
-        Self { path }
-    }
-    pub fn load(&self, max_num_doc: usize) -> (PositionalIndex, Collection) {
-        let file = File::open(self.path.as_str()).unwrap();
-        let mut index = PositionalIndex::new();
+    pub fn load(&self, max_num_doc: usize) -> (InvertedIndex, Collection) {
+        let mut index = InvertedIndex::new();
         let mut collection = Collection::new();
         let mut flag_abs = false;
         let mut doc_id = 0;
-        let bufreader = BufReader::new(file);
+        let bufreader = BufReader::new(&self.file);
         let mgz = MultiGzDecoder::new(bufreader);
         let mut reader = Reader::from_reader(BufReader::new(mgz));
         let mut buf = Vec::new();
@@ -66,12 +60,9 @@ impl Loader {
             }
         }
         buf.clear();
-        println!("{:#?}", collection.document(&5));
-        println!("Total abstracts {}", collection.len());
-        println!("{:#?}", collection.document(&9));
-        println!("{:#?}", collection.document(&8));
-        println!("{:#?}", collection.document(&5));
-        println!("{:#?}", collection.document(&4));
+        // println!("{:#?}", index.index());
+        // println!("{:#?}", collection.document(&5));
+        // println!("{:#?}", collection.document(&1));
         return (index, collection);
     }
 }
@@ -82,7 +73,11 @@ mod test {
 
     #[test]
     fn test_loader() {
-        let loader = Loader::from("s".to_string());
-        loader.load(10);
+        match Loader::from("enwiki-latest-abstract.xml.gz".to_string()) {
+            Ok(loader) => {
+                loader.load(10);
+            }
+            Err(error) => println!("Error reading file, {error}"),
+        }
     }
 }

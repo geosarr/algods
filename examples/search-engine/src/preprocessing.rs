@@ -24,9 +24,14 @@ pub fn is_not_punct(character: char) -> bool {
     !PUNCTUATION.contains(character)
 }
 
-pub fn preprocess(doc: &Document) -> HashMap<String, usize> {
-    let mut content = doc.content().to_lowercase();
+pub fn simple_preprocess(content: &str) -> String {
+    let mut content = content.to_lowercase();
     content.retain(is_not_punct);
+    content
+}
+
+pub fn preprocess(doc: &Document) -> HashMap<String, usize> {
+    let content = simple_preprocess(doc.content());
     let content = content.split_whitespace().collect();
     let mut counter = Counter::new();
     counter.count(content)

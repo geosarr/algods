@@ -74,15 +74,18 @@ impl InvertedIndex {
     }
 }
 
+#[derive(Debug)]
 pub struct PositionalPosting {
-    docs: Vec<DocumentPosition>,
+    docs: Vec<PositionInDocument>,
 }
 
-pub struct DocumentPosition {
+#[derive(Debug)]
+pub struct PositionInDocument {
     id: usize,
     positions: TokenPosition,
 }
 
+#[derive(Debug)]
 pub struct TokenPosition {
     pos: Vec<usize>,
 }
@@ -109,6 +112,9 @@ impl PositionalIndex {
             include_char_index: true,
             ngram: 2,
         }
+    }
+    pub fn index(&self) -> &HashMap<String, PositionalPosting> {
+        &self.index
     }
     pub fn from(include_char_index: bool, ngram: usize) -> Self {
         let mut inv_index = Self::new();
@@ -145,7 +151,7 @@ impl PositionalIndex {
             if !self.index.contains_key(token) {
                 // The first element is the document frequency (1 here) the following elements are the document ID followed
                 // by the raw frequency of the term and its positions in the corresponding documents.
-                let doc = DocumentPosition {
+                let doc = PositionInDocument {
                     id: doc_id,
                     positions: TokenPosition {
                         pos: vec![position],
@@ -173,7 +179,7 @@ impl PositionalIndex {
                         .get_mut(token)
                         .unwrap()
                         .docs
-                        .push(DocumentPosition {
+                        .push(PositionInDocument {
                             id: doc_id,
                             positions: TokenPosition {
                                 pos: vec![position],

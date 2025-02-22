@@ -17,18 +17,22 @@ struct Cli {
 
 fn main() {
     let cli = Cli::parse();
-    let loader = Loader::from(cli.file_abs_path);
-    let (index, collection) = loader.load(cli.max_num_abs);
-    let model = Boolean::new();
-    loop {
-        let mut query = String::new();
+    match Loader::from(cli.file_abs_path) {
+        Ok(loader) => {
+            let (index, collection) = loader.load(cli.max_num_abs);
+            let model = Boolean::new();
+            loop {
+                let mut query = String::new();
 
-        println!("\nPlease enter a query, press Ctrl + C to exit");
+                println!("\n\nPlease enter a query, press Ctrl + C to exit");
 
-        io::stdin()
-            .read_line(&mut query)
-            .expect("Failed to read query");
+                io::stdin()
+                    .read_line(&mut query)
+                    .expect("Failed to read query");
 
-        println!("{:?}", model.retrieve(query.as_str(), &index, &collection));
+                println!("{:?}", model.retrieve(query.as_str(), &index, &collection));
+            }
+        }
+        Err(error) => println!("Error reading file,\n{error}"),
     }
 }
