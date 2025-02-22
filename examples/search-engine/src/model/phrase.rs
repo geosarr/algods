@@ -1,17 +1,37 @@
+use std::collections::HashSet;
+
 use crate::{
     collection::{Collection, Document},
     index::{PositionInDocument, PositionalIndex, PositionalPosting, TokenPosition},
+    preprocessing::simple_preprocess,
 };
 
-pub struct Phrase;
+pub struct Phrase {
+    k: usize,
+}
 impl Phrase {
+    pub fn new() -> Self {
+        Self { k: 5 }
+    }
+    pub fn from(k: usize) -> Self {
+        Self { k }
+    }
     pub fn retrieve<'a>(
         &self,
         query: &str,
         index: &PositionalIndex,
         collection: &'a Collection,
     ) -> Vec<&'a Document> {
-        vec![]
+        let processed_query = simple_preprocess(query);
+        let processed_query: HashSet<_> = processed_query.split_whitespace().collect();
+        let postings = processed_query
+            .iter()
+            .filter_map(|tok| index.posting(tok))
+            .collect::<Vec<_>>();
+        positional_intersect(&postings, self.k)
+            .iter()
+            .map(|id| collection.document(id))
+            .collect()
     }
 }
 fn intersect_two(
@@ -20,7 +40,7 @@ fn intersect_two(
     k: usize,
 ) -> PositionalPosting {
     let (mut p1, mut p2) = (0, 0);
-    let (n1, n2) = (posting1.docs.len(), posting1.docs.len());
+    let (n1, n2) = (posting1.docs.len(), posting2.docs.len());
     let mut result = PositionalPosting::with_capacity(std::cmp::min(n1, n2) + 1);
 
     while (p1 < n1) && (p2 < n2) {
@@ -66,7 +86,7 @@ fn intersect_two(
     result
 }
 
-fn positional_intersect(postings: &[PositionalPosting], k: usize) -> Vec<usize> {
+fn positional_intersect(postings: &[&PositionalPosting], k: usize) -> Vec<usize> {
     let mut result = postings[0].clone();
     let mut rest = &postings[1..];
     while !rest.is_empty() && !result.docs.is_empty() {

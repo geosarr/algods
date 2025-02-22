@@ -1,5 +1,5 @@
 use crate::collection::{Collection, Document};
-use crate::index::InvertedIndex;
+use crate::index::PositionalIndex;
 use flate2::read::MultiGzDecoder;
 use pbr::ProgressBar;
 use quick_xml::events::Event;
@@ -18,8 +18,8 @@ impl Loader {
             Err(error) => Err(error),
         }
     }
-    pub fn load(&self, max_num_doc: usize) -> (InvertedIndex, Collection) {
-        let mut index = InvertedIndex::new();
+    pub fn load(&self, max_num_doc: usize) -> (PositionalIndex, Collection) {
+        let mut index = PositionalIndex::new();
         let mut collection = Collection::new();
         let mut flag_abs = false;
         let mut doc_id = 0;

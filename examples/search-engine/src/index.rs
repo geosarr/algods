@@ -132,7 +132,9 @@ impl PositionalIndex {
         inv_index.ngram = ngram;
         inv_index
     }
-
+    pub fn posting(&self, tok: &str) -> Option<&PositionalPosting> {
+        self.index.get(tok)
+    }
     pub fn index_document(&mut self, document: Document, collection: &mut Collection) {
         let doc_id = document.id();
         if !collection.contains(&doc_id) {

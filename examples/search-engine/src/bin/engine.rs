@@ -1,6 +1,6 @@
 use clap::Parser;
 use search::loader::Loader;
-use search::model::Boolean;
+use search::model::{Boolean, Phrase};
 use std::io;
 
 #[derive(Parser)]
@@ -20,7 +20,7 @@ fn main() {
     match Loader::from(cli.file_abs_path) {
         Ok(loader) => {
             let (index, collection) = loader.load(cli.max_num_abs);
-            let model = Boolean::new();
+            let model = Phrase::new();
             loop {
                 let mut query = String::new();
 
