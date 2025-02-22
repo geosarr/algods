@@ -37,8 +37,8 @@ impl InvertedIndex {
         &self.raw_freq
     }
 
-    pub fn posting(&self, tok: &str) -> &[usize] {
-        &self.index[tok]
+    pub fn posting(&self, tok: &str) -> Option<&[usize]> {
+        self.index.get(tok).map(|posting| posting.as_slice())
     }
 
     pub fn index_document(&mut self, document: Document, collection: &mut Collection) {
@@ -74,20 +74,30 @@ impl InvertedIndex {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PositionalPosting {
-    docs: Vec<PositionInDocument>,
+    pub docs: Vec<PositionInDocument>,
+}
+impl PositionalPosting {
+    pub fn with_capacity(size: usize) -> Self {
+        Self {
+            docs: Vec::with_capacity(size),
+        }
+    }
+    pub fn push(&mut self, value: PositionInDocument) {
+        self.docs.push(value)
+    }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PositionInDocument {
-    id: usize,
-    positions: TokenPosition,
+    pub id: usize,
+    pub positions: TokenPosition,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TokenPosition {
-    pos: Vec<usize>,
+    pub pos: Vec<usize>,
 }
 impl TokenPosition {
     pub fn push(&mut self, position: usize) {

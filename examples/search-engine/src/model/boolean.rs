@@ -26,21 +26,18 @@ impl Boolean {
     ) -> Vec<&'a Document> {
         let processed_query = simple_preprocess(query);
         let processed_query: HashSet<_> = processed_query.split_whitespace().collect();
-        let collection_tokens: HashSet<_> = index.index().keys().map(|t| t.as_str()).collect(); // TODO: Add it to data preparation
-        let overlap: HashSet<_> = processed_query.intersection(&collection_tokens).collect();
-        let postings: Vec<_> = overlap.iter().map(|tok| index.posting(tok)).collect();
-        if !postings.is_empty() {
-            let matching_doc_id = match self.query_type {
-                BooleanQuery::And => op_many(postings, intersect),
-                BooleanQuery::Or => op_many(postings, union),
-            };
-            matching_doc_id
-                .iter()
-                .map(|id| collection.document(id))
-                .collect()
-        } else {
-            vec![]
-        }
+        let postings = processed_query
+            .iter()
+            .filter_map(|tok| index.posting(tok))
+            .collect();
+        let matching_postings = match self.query_type {
+            BooleanQuery::And => op_many(postings, intersect),
+            BooleanQuery::Or => op_many(postings, union),
+        };
+        matching_postings
+            .iter()
+            .map(|id| collection.document(id))
+            .collect()
     }
 }
 
