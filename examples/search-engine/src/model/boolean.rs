@@ -18,12 +18,12 @@ impl Boolean {
             query_type: BooleanQuery::Or,
         }
     }
-    pub fn retrieve<'b, 'c>(
+    pub fn retrieve<'a>(
         &self,
-        query: &'b str,
+        query: &str,
         index: &InvertedIndex,
-        collection: &'c Collection,
-    ) -> Vec<&'c Document> {
+        collection: &'a Collection,
+    ) -> Vec<&'a Document> {
         let processed_query = simple_preprocess(query);
         let processed_query: HashSet<_> = processed_query.split_whitespace().collect();
         let collection_tokens: HashSet<_> = index.index().keys().map(|t| t.as_str()).collect(); // TODO: Add it to data preparation
