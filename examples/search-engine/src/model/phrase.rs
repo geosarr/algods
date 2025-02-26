@@ -87,6 +87,9 @@ fn intersect_two(
 }
 
 fn positional_intersect(postings: &[&PositionalPosting], k: usize) -> Vec<usize> {
+    if postings.is_empty() {
+        return vec![];
+    }
     let mut result = postings[0].clone();
     let mut rest = &postings[1..];
     while !rest.is_empty() && !result.docs.is_empty() {

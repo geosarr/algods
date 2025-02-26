@@ -45,6 +45,9 @@ fn op_many<O>(list_posts: Vec<&[usize]>, operation: O) -> Vec<usize>
 where
     O: Fn(&[usize], &[usize]) -> Vec<usize>,
 {
+    if list_posts.is_empty() {
+        return vec![];
+    }
     // TODO: add sorting posting by incresing freq for intersection operation
     let mut rest = &list_posts[1..];
     let mut result = list_posts[0];

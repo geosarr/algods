@@ -1,5 +1,5 @@
 use crate::collection::{Collection, Document};
-use crate::index::PositionalIndex;
+use crate::Index;
 use flate2::read::MultiGzDecoder;
 use pbr::ProgressBar;
 use quick_xml::events::Event;
@@ -18,8 +18,8 @@ impl Loader {
             Err(error) => Err(error),
         }
     }
-    pub fn load(&self, max_num_doc: usize) -> (PositionalIndex, Collection) {
-        let mut index = PositionalIndex::new();
+    pub fn load<I: Index>(&self, max_num_doc: usize) -> (I, Collection) {
+        let mut index = I::new();
         let mut collection = Collection::new();
         let mut flag_abs = false;
         let mut doc_id = 0;
@@ -69,13 +69,15 @@ impl Loader {
 
 #[cfg(test)]
 mod test {
+    use crate::index::PositionalIndex;
+
     use super::*;
 
     #[test]
     fn test_loader() {
         match Loader::from("enwiki-latest-abstract.xml.gz".to_string()) {
             Ok(loader) => {
-                loader.load(10);
+                loader.load::<PositionalIndex>(10);
             }
             Err(error) => println!("Error reading file, {error}"),
         }
