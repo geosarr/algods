@@ -1,7 +1,3 @@
-// use collection::{Collection, Document};
-// use index::InvertedIndex;
-// use model::{Boolean, Phrase};
-
 use collection::{Collection, Document};
 use index::{InvertedIndex, PositionalIndex};
 use model::{Boolean, Phrase};
@@ -13,6 +9,12 @@ pub mod loader;
 pub mod model;
 pub mod preprocessing;
 mod unit_test;
+
+pub struct SearchEngine<I, M> {
+    pub indices: I,
+    pub collection: Collection,
+    pub models: M,
+}
 
 pub trait Model<I> {
     fn retrieve<'a>(&self, query: &str, index: &I, collection: &'a Collection)

@@ -1,5 +1,5 @@
 use crate::collection::{Collection, Document};
-use crate::Index;
+use crate::index::{InvertedIndex, PositionalIndex};
 use flate2::read::MultiGzDecoder;
 use pbr::ProgressBar;
 use quick_xml::events::Event;
@@ -18,8 +18,9 @@ impl Loader {
             Err(error) => Err(error),
         }
     }
-    pub fn load<I: Index>(&self, max_num_doc: usize) -> (I, Collection) {
-        let mut index = I::new();
+    pub fn load(&self, max_num_doc: usize) -> (PositionalIndex, InvertedIndex, Collection) {
+        let mut inverted = InvertedIndex::new();
+        let mut positional = PositionalIndex::new();
         let mut collection = Collection::new();
         let mut flag_abs = false;
         let mut doc_id = 0;
@@ -45,7 +46,8 @@ impl Loader {
                     let text = e.unescape().unwrap().into_owned();
                     if text.len() >= 10 && flag_abs {
                         let doc = Document::from(doc_id + 1, text);
-                        index.index_document(doc, &mut collection);
+                        inverted.index_document(doc.clone(), &mut collection);
+                        positional.index_document(doc, &mut collection);
                         flag_abs = false;
                         doc_id += 1;
                         pb.inc();
@@ -63,21 +65,19 @@ impl Loader {
         // println!("{:#?}", index.index());
         // println!("{:#?}", collection.document(&5));
         // println!("{:#?}", collection.document(&1));
-        return (index, collection);
+        return (positional, inverted, collection);
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::index::PositionalIndex;
-
     use super::*;
 
     #[test]
     fn test_loader() {
         match Loader::from("enwiki-latest-abstract.xml.gz".to_string()) {
             Ok(loader) => {
-                loader.load::<PositionalIndex>(10);
+                loader.load(10);
             }
             Err(error) => println!("Error reading file, {error}"),
         }

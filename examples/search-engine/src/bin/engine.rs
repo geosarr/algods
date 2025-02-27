@@ -1,32 +1,26 @@
 use clap::Parser;
-use search::collection::Collection;
+use search::index::InvertedIndex;
 use search::loader::Loader;
-use search::model::{Boolean, Phrase};
-use search::{Index, Model};
+use search::model::Boolean;
+use search::Model;
 use std::io;
 
-pub fn loop_launcher<I, M>(model: M, index: I, collection: Collection)
+pub fn launcher<M>(file_path: String, max_num_abs: usize, model: M)
 where
-    M: Model<I>,
-{
-    loop {
-        let mut query = String::new();
-        println!("\n\nPlease enter a query, press Ctrl + C to exit");
-        io::stdin()
-            .read_line(&mut query)
-            .expect("Failed to read query");
-        let result = model.retrieve(query.as_str(), &index, &collection);
-        println!("{:?}", result);
-    }
-}
-pub fn launcher<I: Index, M>(file_path: String, max_num_abs: usize, model: M)
-where
-    M: Model<I>,
+    M: Model<InvertedIndex>,
 {
     match Loader::from(file_path) {
         Ok(loader) => {
-            let (index, collection) = loader.load::<I>(max_num_abs);
-            loop_launcher(model, index, collection);
+            let (_, index, collection) = loader.load(max_num_abs);
+            loop {
+                let mut query = String::new();
+                println!("\n\nPlease enter a query, press Ctrl + C to exit");
+                io::stdin()
+                    .read_line(&mut query)
+                    .expect("Failed to read query");
+                let result = model.retrieve(query.as_str(), &index, &collection);
+                println!("{:?}", result);
+            }
         }
         Err(error) => println!("Error reading file,\n{error}"),
     };
@@ -46,5 +40,5 @@ struct Cli {
 
 fn main() {
     let cli = Cli::parse();
-    launcher(cli.file_abs_path, cli.max_num_abs, Phrase::new());
+    launcher(cli.file_abs_path, cli.max_num_abs, Boolean::new());
 }
